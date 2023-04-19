@@ -6,6 +6,7 @@ on Microsoft Flight Simulator 2020. It is currently capable of:
 * Converting texture images from and to DDS format.
 * Creating the directory structure of a package.
 * Creating an "aircraft.cfg" file based on the original aircraft and variation information.
+* Creating a "manifest.json" file (optionally based on the original manifest).
 
 ## Requirements
 
