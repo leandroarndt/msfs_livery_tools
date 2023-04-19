@@ -3,9 +3,9 @@
 MSFS Livery Tools aims to be a set of tools to help creating livery for existing aircrafts
 on Microsoft Flight Simulator 2020. It is currently capable of:
 
-* Convert texture images from and to DDS format.
-* Create the directory structure of a package.
-* Create an "aircraft.cfg" file based on the original aircraft and variation information.
+* Converting texture images from and to DDS format.
+* Creating the directory structure of a package.
+* Creating an "aircraft.cfg" file based on the original aircraft and variation information.
 
 ## Requirements
 
