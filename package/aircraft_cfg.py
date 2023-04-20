@@ -2,15 +2,7 @@
 import configparser, io
 import io
 from pathlib import Path
-
-def get_section(section:str, config:configparser.ConfigParser):
-    for s in config.sections():
-        if s.upper() == section.upper():
-            return config[s]
-    
-    # Create section if it doesn't exist
-    config.add_section(section)
-    return config[section]
+from .cfg_tools import get_section
 
 def from_original(file_name:str, variation_name, suffix:str, model:bool=False,
                     panel:bool=False, sound:bool=False, texture:bool=True,
