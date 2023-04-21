@@ -19,7 +19,7 @@ so that you can focus on your creative work:
 
 * Graphical user interface.
 * glTF converter to remove MSFT extension, so that already built aircrafts can be
-opened with Asobo's Blender plugin.
+opened with [Asobo's Blender plugin](https://github.com/AsoboStudio/glTF-Blender-IO-MSFS).
 
 ## Requirements
 
