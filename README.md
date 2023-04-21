@@ -1,3 +1,4 @@
+[![Header image](resources/header.jpg)](https://github.com/leandroarndt/msfs_livery_tools)
 # MSFS Livery Tools
 
 MSFS Livery Tools is set of tools to help creating livery for existing aircrafts
@@ -14,6 +15,10 @@ so that you can focus on your creative work:
 * Creating descriptive JSON files for DDS textures (.DDS.json).
 * Creating flag file for textures (.FLAGS)
 * Creating package layout files ("layout.json")
+
+## Instalation
+
+Download latest [release](https://github.com/leandroarndt/msfs_livery_tools/releases) and use the provided tools in a Python 3 interpreter.
 
 ## TODO
 
