@@ -5,159 +5,152 @@ import configparser, ast
 class Project(object):
     """Project handler with tools to create its structure."""
     
-    _config:configparser
+    _config:configparser.ConfigParser
+    _parsers:dict[configparser.ConfigParser] = {}
     file:Path
     
     # General settings
     @property
-    def join_model_and_textures(self):
-        return self._config['PROJECT']['join_model_and_textures']
+    def join_model_and_textures(self)->bool:
+        return True if __class__._parsers[self.file.as_posix()]['PROJECT']['join_model_and_textures'] == 'True' else False
     
     @join_model_and_textures.setter
-    def join_model_and_textures(self, value:str):
-        self._config['PROJECT']['join_model_and_textures'] = value
+    def join_model_and_textures(self, value:bool):
+        __class__._parsers[self.file.as_posix()]['PROJECT']['join_model_and_textures'] = str(value)
     
     @property
-    def origin(self):
-        return self._config['PROJECT']['origin']
+    def origin(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['origin']
     
     @origin.setter
     def origin(self, path:str):
-        self._config['PROJECT']['origin'] = path
-        self._config['AIRCRAFT']['base_container'] = f'..\{Path(path).name}'
+        __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = path
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = f'..\{Path(path).name}'
     
     @property
-    def title(self):
-        return self._config['PROJECT']['title']
+    def title(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['title']
     
     @title.setter
     def title(self, value:str):
-        self._config['PROJECT']['title'] = value
+        __class__._parsers[self.file.as_posix()]['PROJECT']['title'] = value
     
     @property
-    def airplane_folder(self):
-        return self._config['PROJECT']['airplane_folder']
+    def airplane_folder(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['airplane_folder']
     
     @airplane_folder.setter
     def airplane_folder(self, value:str):
-        self._config['PROJECT']['airplane_folder'] = value
+        __class__._parsers[self.file.as_posix()]['PROJECT']['airplane_folder'] = value
     
     @property
-    def manufacturer(self):
-        return self._config['PROJECT']['manufacturer']
+    def manufacturer(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['manufacturer']
     
     @manufacturer.setter
     def manufacturer(self, value:str):
-        self._config['PROJECT']['manufacturer'] = value
+        __class__._parsers[self.file.as_posix()]['PROJECT']['manufacturer'] = value
     
     @property
-    def creator(self):
-        return self._config['PROJECT']['creator']
+    def creator(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['creator']
     
     @manufacturer.setter
     def creator(self, value:str):
-        self._config['PROJECT']['creator'] = value
+        __class__._parsers[self.file.as_posix()]['PROJECT']['creator'] = value
     
     @property
-    def version(self):
-        return self._config['PROJECT']['version']
+    def version(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['version']
     
     @version.setter
     def version(self, value:str):
-        self._config['PROJECT']['version'] = value
+        __class__._parsers[self.file.as_posix()]['PROJECT']['version'] = value
     
     @property
-    def minimum_game_version(self):
-        return self._config['PROJECT']['minimum_game_version']
+    def minimum_game_version(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['minimum_game_version']
     
     @minimum_game_version.setter
     def minimum_game_version(self, value:str):
-        self._config['PROJECT']['minimum_game_version'] = value
+        __class__._parsers[self.file.as_posix()]['PROJECT']['minimum_game_version'] = value
     
     # Aircraft.cfg specific settings
     @property
-    def suffix(self):
-        return self._config['AIRCRAFT']['suffix']
+    def suffix(self)->str:
+        return __class__._parsers[self.file.as_posix()]['AIRCRAFT']['suffix']
     
     @suffix.setter
     def suffix(self, value:str):
-        self._config['PROJECT']['suffix'] = value
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['suffix'] = value
     
     @property
-    def suffix(self):
-        return self._config['AIRCRAFT']['suffix']
-    
-    @suffix.setter
-    def suffix(self, value:str):
-        self._config['PROJECT']['suffix'] = value
-    
-    @property
-    def tail_number(self):
-        return self._config['AIRCRAFT']['tail_number']
+    def tail_number(self)->str:
+        return __class__._parsers[self.file.as_posix()]['AIRCRAFT']['tail_number']
     
     @tail_number.setter
     def tail_number(self, value:str):
-        self._config['PROJECT']['tail_number'] = value
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['tail_number'] = value
     
     # Which folders to use at the package
     @property
-    def model(self):
-        return self._config['AIRCRAFT']['model']
+    def model(self)->bool:
+        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['model'] == 'True' else False
     
     @model.setter
-    def model(self, value:str):
-        self._config['PROJECT']['model'] = value
+    def model(self, value:bool):
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['model'] = str(value)
     
     @property
-    def panel(self):
-        return self._config['AIRCRAFT']['panel']
+    def panel(self)->bool:
+        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] == 'True' else False
     
     @panel.setter
-    def panel(self, value:str):
-        self._config['PROJECT']['panel'] = value
+    def panel(self, value:bool):
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] = str(value)
     
     @property
-    def sound(self):
-        return self._config['AIRCRAFT']['sound']
+    def sound(self)->bool:
+        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['sound'] == 'True' else False
     
     @sound.setter
-    def sound(self, value:str):
-        self._config['PROJECT']['sound'] = value
+    def sound(self, value:bool):
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['sound'] = str(value)
     
     @property
-    def texture(self):
-        return self._config['AIRCRAFT']['texture']
+    def texture(self)->bool:
+        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['texture'] == 'True' else False
     
     @texture.setter
-    def texture(self, value:str):
-        self._config['PROJECT']['panel'] = value
+    def texture(self, value:bool):
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] = str(value)
     
     # External registration settings (panel.cfg)
     @property
-    def font_color(self):
-        return self._config['PANEL']['font_color']
+    def registration_font_color(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PANEL']['font_color']
     
-    @font_color.setter
-    def font_color(self, value:str):
-        self._config['PANEL']['font_color'] = value
-    
-    @property
-    def stroke_color(self):
-        return self._config['PANEL']['stroke_color']
-    
-    @stroke_color.setter
-    def stroke_color(self, value:str):
-        self._config['PANEL']['stroke_color'] = value
+    @registration_font_color.setter
+    def registration_font_color(self, value:str):
+        __class__._parsers[self.file.as_posix()]['PANEL']['font_color'] = value
     
     @property
-    def stroke_size(self):
-        return self._config['PANEL']['stroke_size']
+    def registration_stroke_color(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PANEL']['stroke_color']
     
-    @stroke_size.setter
-    def stroke_size(self, value:str):
-        self._config['PANEL']['stroke_size'] = value
+    @registration_stroke_color.setter
+    def registration_stroke_color(self, value:str):
+        __class__._parsers[self.file.as_posix()]['PANEL']['stroke_color'] = value
     
-    def texture(self, name:str, property:str, value=None, delete=False):
+    @property
+    def registration_stroke_size(self)->int:
+        return int(__class__._parsers[self.file.as_posix()]['PANEL']['stroke_size'])
+    
+    @registration_stroke_size.setter
+    def registration_stroke_size(self, value:int):
+        __class__._parsers[self.file.as_posix()]['PANEL']['stroke_size'] = str(value)
+    
+    def texture(self, name:str, property:str, value=None, delete=False)->str:
         """Access to texture properties.
 
         Args:
@@ -171,15 +164,15 @@ class Project(object):
         """
         key = f'{name}_{property}'
         if value is not None:
-            self._config['TEXTURES'][key] = str(value)
+            __class__._parsers[self.file.as_posix()]['TEXTURES'][key] = str(value)
         
         # Return list:
-        if self._config['TEXTURES'][key].startswith('[') and \
-            self._config['TEXTURES'][key].endswith(']'):
-                return ast.literal_eval(self._config['TEXTURES'][key])
+        if __class__._parsers[self.file.as_posix()]['TEXTURES'][key].startswith('[') and \
+            __class__._parsers[self.file.as_posix()]['TEXTURES'][key].endswith(']'):
+                return ast.literal_eval(__class__._parsers[self.file.as_posix()]['TEXTURES'][key])
         
         # Return string:
-        return self._config['TEXTURES'][key]
+        return __class__._parsers[self.file.as_posix()]['TEXTURES'][key]
     
     def __init__(self, project_path:str, join_model_and_textures=True):
         """Project handler with tools to create its structure.
@@ -190,23 +183,24 @@ class Project(object):
                 directory with both model and texture files. Defaults to True.
         """
         self.file = Path(project_path, 'livery.ini')
-        self._config = configparser.ConfigParser()
+        if self.file not in __class__._parsers:
+            __class__._parsers[self.file.as_posix()] = configparser.ConfigParser()
         if self.file.is_file():
-            self._config.read(self.file)
+            __class__._parsers[self.file.as_posix()].read(self.file)
         else:
-            self._config['PROJECT'] = {
+            __class__._parsers[self.file.as_posix()]['PROJECT'] = {
                 'join_model_and_textures': join_model_and_textures
             }
-            self._config['AIRCRAFT'] = {}
-            self._config['PANEL'] = {}
-            self._config['TEXTURES'] = {}
+            __class__._parsers[self.file.as_posix()]['AIRCRAFT'] = {}
+            __class__._parsers[self.file.as_posix()]['PANEL'] = {}
+            __class__._parsers[self.file.as_posix()]['TEXTURES'] = {}
             Path(project_path).mkdir(exist_ok=True)
             self.create_structure()
             self.save()
     
     def save(self):
         with open(self.file, 'w') as f:
-            self._config.write(f)
+            __class__._parsers[self.file.as_posix()].write(f)
     
     def create_structure(self):
         base_dir = Path(self.file).parent
