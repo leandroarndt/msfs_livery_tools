@@ -1,6 +1,6 @@
 """Project configuration manager"""
 from pathlib import Path
-import configparser
+import configparser, ast
 
 class Project(object):
     """Project handler with tools to create its structure."""
@@ -157,14 +157,29 @@ class Project(object):
     def stroke_size(self, value:str):
         self._config['PANEL']['stroke_size'] = value
     
-    # Direct access to 'TEXTURES' section
-    @property
-    def textures(self):
-        return self._config['TEXTURES']
-    
-    @textures.setter
-    def textures(self, value:dict):
-        self._config['TEXTURES'] = value
+    def texture(self, name:str, property:str, value=None, delete=False):
+        """Access to texture properties.
+
+        Args:
+            name (str): texture name.
+            property (str): property being accessed.
+            value (_type_, optional): if provided, set value to the string representation
+                of this argument. Defaults to None.
+            delete (bool, optional): delete property.
+        
+        Return: property value.
+        """
+        key = f'{name}_{property}'
+        if value is not None:
+            self._config['TEXTURES'][key] = str(value)
+        
+        # Return list:
+        if self._config['TEXTURES'][key].startswith('[') and \
+            self._config['TEXTURES'][key].endswith(']'):
+                return ast.literal_eval(self._config['TEXTURES'][key])
+        
+        # Return string:
+        return self._config['TEXTURES'][key]
     
     def __init__(self, project_path:str, join_model_and_textures=True):
         """Project handler with tools to create its structure.
