@@ -11,6 +11,7 @@ on Microsoft Flight Simulator 2020. It is currently capable of:
   * variation override;
   * external registration font color and stroke.
 * Creating descriptive JSON files for DDS textures (.DDS.json).
+* Creating flag file for textures (.FLAGS)
 
 ## Requirements
 
