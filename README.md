@@ -10,6 +10,7 @@ on Microsoft Flight Simulator 2020. It is currently capable of:
 * Creating a "panel.cfg" file and changing:
   * variation override;
   * external registration font color and stroke.
+* Creating descriptive JSON files for DDS textures (.DDS.json).
 
 ## Requirements
 
