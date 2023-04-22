@@ -24,8 +24,12 @@ class Project(object):
     
     @origin.setter
     def origin(self, path:str):
-        __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = path
+        __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = str(path) # Avoid Path objects
         __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = f'..\{Path(path).name}'
+        
+    @property
+    def base_container(self)->str:
+        return __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container']
     
     @property
     def title(self)->str:
@@ -55,7 +59,7 @@ class Project(object):
     def creator(self)->str:
         return __class__._parsers[self.file.as_posix()]['PROJECT']['creator']
     
-    @manufacturer.setter
+    @creator.setter
     def creator(self, value:str):
         __class__._parsers[self.file.as_posix()]['PROJECT']['creator'] = value
     
@@ -123,7 +127,7 @@ class Project(object):
     
     @texture.setter
     def texture(self, value:bool):
-        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] = str(value)
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['texture'] = str(value)
     
     # External registration settings (panel.cfg)
     @property
@@ -150,6 +154,7 @@ class Project(object):
     def registration_stroke_size(self, value:int):
         __class__._parsers[self.file.as_posix()]['PANEL']['stroke_size'] = str(value)
     
+    #TODO: Maybe a texture class?
     def texture(self, name:str, property:str, value=None, delete=False)->str:
         """Access to texture properties.
 
@@ -183,27 +188,27 @@ class Project(object):
                 directory with both model and texture files. Defaults to True.
         """
         self.file = Path(project_path, 'livery.ini')
-        if self.file not in __class__._parsers:
-            __class__._parsers[self.file.as_posix()] = configparser.ConfigParser()
-        if self.file.is_file():
-            __class__._parsers[self.file.as_posix()].read(self.file)
-        else:
-            __class__._parsers[self.file.as_posix()]['PROJECT'] = {
-                'join_model_and_textures': join_model_and_textures
-            }
-            __class__._parsers[self.file.as_posix()]['AIRCRAFT'] = {}
-            __class__._parsers[self.file.as_posix()]['PANEL'] = {}
-            __class__._parsers[self.file.as_posix()]['TEXTURES'] = {}
-            Path(project_path).mkdir(exist_ok=True)
-            self.create_structure()
-            self.save()
+        if Path(project_path, 'livery.ini').as_posix() not in __class__._parsers:
+            if self.file not in __class__._parsers:
+                __class__._parsers[self.file.as_posix()] = configparser.ConfigParser()
+            if self.file.is_file():
+                __class__._parsers[self.file.as_posix()].read(self.file)
+            else:
+                __class__._parsers[self.file.as_posix()]['PROJECT'] = {
+                    'join_model_and_textures': join_model_and_textures
+                }
+                __class__._parsers[self.file.as_posix()]['AIRCRAFT'] = {}
+                __class__._parsers[self.file.as_posix()]['PANEL'] = {}
+                __class__._parsers[self.file.as_posix()]['TEXTURES'] = {}
+                Path(project_path).mkdir(exist_ok=True)
+                self.create_structure()
+                self.save()
     
     def save(self):
         with open(self.file, 'w') as f:
             __class__._parsers[self.file.as_posix()].write(f)
     
     def create_structure(self):
-        base_dir = Path(self.file).parent
         Path(self.file.parent, 'panel').mkdir(exist_ok=True)
         Path(self.file.parent, 'sound').mkdir(exist_ok=True)
         Path(self.file.parent, 'model').mkdir(exist_ok=True)
