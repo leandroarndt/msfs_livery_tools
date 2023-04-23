@@ -1,6 +1,5 @@
 """TTK styles for the whole application."""
 from tkinter import ttk
-from tkinter import font as tkFont
 
 BOLD_BUTTON:str = 'Bold.TButton'
 
@@ -8,13 +7,19 @@ _font = ['TkDefaultFont', 10]
 _bold = _font.copy()
 _bold.append('bold')
 
-def default(root, style_var):
+def default(style_var:ttk.Style):
     style_var.configure('.', font=_font)
+    style_var.configure('.', padding=2)
 
-def bold(root, style_var):
+def bold(style_var:ttk.Style):
     style_var.configure(BOLD_BUTTON, font=_bold)
 
 def init(root):
     style = ttk.Style(root)
-    default(root, style)
-    bold(root, style)
+    default(style)
+    bold(style)
+
+class Separator(ttk.Separator):
+    def pack(self, *args, **kwargs):
+        kwargs.update({'padx': 2, 'pady': 2})
+        super().pack(*args, **kwargs)
