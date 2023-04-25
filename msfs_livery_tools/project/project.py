@@ -9,6 +9,17 @@ class Project(object):
     _parsers:dict[configparser.ConfigParser] = {}
     file:Path
     
+    def __delattr__(self, name):
+        attributes = {
+            'join_model_and_textures': 'PROJECT'
+        }
+        for property, section in attributes.items():
+            if property == name:
+                try:
+                    del __class__._parsers[self.file.as_posix()][section][property]
+                except KeyError:
+                    raise AttributeError(f'"{type(self)} has no attribute "{name}"')
+    
     # General settings
     @property
     def join_model_and_textures(self)->bool:
