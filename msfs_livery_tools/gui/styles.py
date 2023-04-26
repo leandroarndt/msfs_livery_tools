@@ -1,4 +1,5 @@
 """TTK styles for the whole application."""
+import tkinter as tk
 from tkinter import ttk
 
 BOLD_BUTTON:str = 'Bold.TButton'
