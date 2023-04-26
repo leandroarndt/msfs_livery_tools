@@ -11,14 +11,33 @@ class Project(object):
     
     def __delattr__(self, name):
         attributes = {
-            'join_model_and_textures': 'PROJECT'
+            'join_model_and_textures': ('PROJECT', 'join_model_and_textures'),
+            'origin': ('PROJECT', 'origin'),
+            'base_container': ('AIRCRAFT', 'base_container'),
+            'title': ('PROJECT', 'title'),
+            'airplane_folder': ('PROJECT', 'airplane_folder'),
+            'manufacturer': ('PROJECT', 'manufacturer'),
+            'creator': ('PROJECT', 'creator'),
+            'version': ('PROJECT', 'version'),
+            'minimum_game_version': ('PROJECT', 'minimum_game_version'),
+            'suffix': ('AIRCRAFT', 'suffix'),
+            'tail_number': ('AIRCRAFT', 'tail_number'),
+            'include_model': ('AIRCRAFT', 'model'),
+            'include_panel': ('AIRCRAFT', 'panel'),
+            'include_sound': ('AIRCRAFT', 'sound'),
+            'include_texture': ('AIRCRAFT', 'texture'),
+            'registration_font_color': ('PANEL', 'font_color'),
+            'registration_stroke_color': ('PANEL', 'stroke_color'),
+            'registration_stroke_size': ('PANEL', 'stroke_size'),
         }
-        for property, section in attributes.items():
+        for property, location in attributes.items():
             if property == name:
                 try:
-                    del __class__._parsers[self.file.as_posix()][section][property]
-                except KeyError:
-                    raise AttributeError(f'"{type(self)} has no attribute "{name}"')
+                    remove = __class__._parsers[self.file.as_posix()].remove_option(location[0], location[1])
+                    if not remove:
+                        raise configparser.NoOptionError(location[1], location[0])
+                except (configparser.NoOptionError, configparser.NoSectionError):
+                    raise AttributeError(f'"{self} has no attribute "{name}" or it has not been set.')
     
     # General settings
     @property
@@ -109,35 +128,35 @@ class Project(object):
     
     # Which folders to use at the package
     @property
-    def model(self)->bool:
+    def include_model(self)->bool:
         return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['model'] == 'True' else False
     
-    @model.setter
-    def model(self, value:bool):
+    @include_model.setter
+    def include_model(self, value:bool):
         __class__._parsers[self.file.as_posix()]['AIRCRAFT']['model'] = str(value)
     
     @property
-    def panel(self)->bool:
+    def include_panel(self)->bool:
         return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] == 'True' else False
     
-    @panel.setter
-    def panel(self, value:bool):
+    @include_panel.setter
+    def include_panel(self, value:bool):
         __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] = str(value)
     
     @property
-    def sound(self)->bool:
+    def include_sound(self)->bool:
         return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['sound'] == 'True' else False
     
-    @sound.setter
-    def sound(self, value:bool):
+    @include_sound.setter
+    def include_sound(self, value:bool):
         __class__._parsers[self.file.as_posix()]['AIRCRAFT']['sound'] = str(value)
     
     @property
-    def texture(self)->bool:
+    def include_texture(self)->bool:
         return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['texture'] == 'True' else False
     
-    @texture.setter
-    def texture(self, value:bool):
+    @include_texture.setter
+    def include_texture(self, value:bool):
         __class__._parsers[self.file.as_posix()]['AIRCRAFT']['texture'] = str(value)
     
     # External registration settings (panel.cfg)
