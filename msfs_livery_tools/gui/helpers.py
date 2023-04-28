@@ -68,7 +68,7 @@ class CheckButton(ProjectMixin, ttk.Checkbutton):
         self.bind('<FocusOut>', self.update_event) # <Button-1> and <space> trigger before value update.
         
 
-class FolderChooser(ProjectMixin, ttk.Frame):
+class PathChooser(ProjectMixin, ttk.Frame):
     label:ttk.Label
     button:ttk.Button
     value:tk.StringVar

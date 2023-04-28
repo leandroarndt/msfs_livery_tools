@@ -8,7 +8,7 @@ from pathlib import Path
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.compression import dds
 from msfs_livery_tools.package import panel_cfg
-from . import styles, helpers
+from . import styles, helpers, settings
 
 class MainWindow(object):
     project:Project
@@ -27,7 +27,7 @@ class MainWindow(object):
     # Project
     manifest_frame:ttk.Frame
     join_model_check_button:helpers.CheckButton
-    origin_entry:helpers.FolderChooser
+    origin_entry:helpers.PathChooser
     title_entry:helpers.LabelEntry
     airplane_folder_entry:helpers.LabelEntry
     manufacturer_entry:helpers.LabelEntry
@@ -85,7 +85,7 @@ class MainWindow(object):
         self.save_project_button.pack(side=tk.LEFT)
         self.toolbar_separator = styles.Separator(self.toolbar_frame, orient=tk.VERTICAL)
         self.toolbar_frame.pack(fill=tk.Y)
-        self.settings_button = ttk.Button(self.toolbar_frame, text='Settings')
+        self.settings_button = ttk.Button(self.toolbar_frame, text='Settings', command=self.settings)
         self.settings_button.pack(side=tk.LEFT)
         
         # Project notebook
@@ -99,7 +99,7 @@ class MainWindow(object):
                                                             text='Join model and textures',
                                                             default=True)
         self.join_model_check_button.pack(side=tk.TOP, fill=tk.X)
-        self.origin_entry = helpers.FolderChooser(master=self.manifest_frame, app=self, title='Origin',
+        self.origin_entry = helpers.PathChooser(master=self.manifest_frame, app=self, title='Origin',
                                                     button_text='Choose…', button_command=self.choose_origin,
                                                     property='origin')
         self.origin_entry.pack(side=tk.TOP, fill=tk.BOTH)
@@ -123,7 +123,7 @@ class MainWindow(object):
         # Aircraft
         self.aircraft_frame = ttk.Frame(self.project_notebook)
         self.project_notebook.add(self.aircraft_frame, text='Aircraft')
-        self.base_container_frame = helpers.FolderChooser(self.aircraft_frame, app=self, title='Base container',
+        self.base_container_frame = helpers.PathChooser(self.aircraft_frame, app=self, title='Base container',
                                                         button_command=self.choose_origin, button_text='Choose…',
                                                         property='base_container')
         self.base_container_frame.pack(side=tk.TOP, fill=tk.BOTH)
@@ -257,6 +257,10 @@ class MainWindow(object):
     
     def save_project(self):
         self.project.save()
+    
+    def settings(self):
+        settings_window = settings.SettingsWindow(self.win)
+        settings_window.win.wait_window(settings_window.master)
     
     # Project methods
     def choose_origin(self):
