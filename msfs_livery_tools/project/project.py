@@ -55,7 +55,12 @@ class Project(object):
     @origin.setter
     def origin(self, path:str):
         __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = str(path) # Avoid Path objects
-        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = f'..\{Path(path).name}'
+        container = Path(path).name.split('-')
+        try:
+            container.remove('aircraft')
+        except ValueError: # 'aircraft' not in list
+            pass
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = f'..\{"_".join(container)}'
         
     @property
     def base_container(self)->str:
