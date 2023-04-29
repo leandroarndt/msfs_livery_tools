@@ -55,16 +55,31 @@ class Project(object):
     @origin.setter
     def origin(self, path:str):
         __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = str(path) # Avoid Path objects
-        container = Path(path).name.split('-')
-        try:
-            container.remove('aircraft')
-        except ValueError: # 'aircraft' not in list
-            pass
-        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = f'..\{"_".join(container)}'
+        try: # Tries to get the first subdirectory at SimObjects\Airplanes
+            container_path = Path(path) / 'SimObjects' / 'Airplanes'
+            for subdir in container_path.glob('*/'):
+                container = f'..\{subdir.name}'
+                break
+        except:
+            container = Path(path).name.split('-')
+            try:
+                container.remove('aircraft')
+                container = f'..\{"_".join(container)}'
+            except ValueError: # 'aircraft' not in origin name
+                pass
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = container
         
     @property
     def base_container(self)->str:
         return __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container']
+    
+    @base_container.setter
+    def base_container(self, path:str):
+        if str(path).startswith('..\\'):
+            __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = str(path)    
+            __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = Path(path).absolute.parent.parent.parent
+        __class__._parsers[self.file.as_posix()]['AIRCRAFT']['base_container'] = f'..\{str(Path(path).name)}' # Avoid Path objects
+        __class__._parsers[self.file.as_posix()]['PROJECT']['origin'] = str(Path(path).parent.parent.parent)
     
     @property
     def title(self)->str:
