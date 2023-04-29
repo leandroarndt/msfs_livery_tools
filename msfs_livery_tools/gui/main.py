@@ -23,6 +23,9 @@ class MainWindow(object):
     toolbar_separator:styles.Separator
     settings_button:ttk.Button
     
+    # Main frame
+    middle_frame:ttk.Frame
+    
     # Project frame
     project_notebook:ttk.Notebook
     # Project
@@ -56,6 +59,7 @@ class MainWindow(object):
     # Actions frame
     actions_frame:ttk.Labelframe
     extract_textures_button:ttk.Button
+    compress_textures_button:ttk.Button
     dds_json_button:ttk.Button
     texture_flags_button:ttk.Button
     aircraft_actions_separator:styles.Separator
@@ -70,10 +74,13 @@ class MainWindow(object):
     pack_livery_button:ttk.Button
     update_layout_button:ttk.Button
     
+    # Progress bar
+    bottom_frame:ttk.Frame
+    progress_bar:ttk.Progressbar
+    
     def __init__(self):
         self.win = tk.Tk(className='MSFS Livery Tools')
         styles.init(self.win)
-        self.agent = actions.Agent()
         
         # Toolbar
         self.toolbar_frame = ttk.Frame(self.win)
@@ -90,8 +97,12 @@ class MainWindow(object):
         self.settings_button = ttk.Button(self.toolbar_frame, text='Settings', command=self.settings)
         self.settings_button.pack(side=tk.LEFT)
         
+        # Main Frame
+        self.middle_frame = ttk.Frame(self.win)
+        self.middle_frame.pack(fill=tk.BOTH)
+        
         # Project notebook
-        self.project_notebook = ttk.Notebook(self.win)
+        self.project_notebook = ttk.Notebook(self.middle_frame)
         self.project_notebook.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, anchor=tk.N)
         # Project
         self.manifest_frame = ttk.Frame(self.project_notebook)
@@ -165,18 +176,21 @@ class MainWindow(object):
         # self.project_notebook.add(self.textures_frame, text='Textures')
         
         # Action frame
-        self.actions_frame = ttk.LabelFrame(self.win, text='Actions')
+        self.actions_frame = ttk.LabelFrame(self.middle_frame, text='Actions')
         self.actions_frame.pack(side=tk.RIGHT, expand=False, anchor=tk.N)
         #Texture section
         self.extract_textures_button = ttk.Button(self.actions_frame, text='Extract textures',
                                                     command=self.extract_textures, state=tk.DISABLED)
         self.extract_textures_button.pack(fill=tk.X)
+        self.compress_textures_button = ttk.Button(self.actions_frame, text='Compress textures',
+                                                    command=self.compress_textures, state=tk.DISABLED)
+        self.compress_textures_button.pack(fill=tk.X)
         self.dds_json_button = ttk.Button(self.actions_frame, text='Create texture descriptors',
                                             command=self.dds_json, state=tk.DISABLED)
         self.dds_json_button.pack(fill=tk.X)
-        self.texture_flags_button = ttk.Button(self.actions_frame, text='Create texture flags',
-                                                command=self.create_flags, state=tk.DISABLED)
-        self.texture_flags_button.pack(fill=tk.X)
+        # self.texture_flags_button = ttk.Button(self.actions_frame, text='Create texture flags',
+        #                                         command=self.create_flags, state=tk.DISABLED)
+        # self.texture_flags_button.pack(fill=tk.X)
         # Aircraft section
         self.aircraft_actions_separator = styles.Separator(self.actions_frame, orient=tk.HORIZONTAL)
         self.aircraft_actions_separator.pack(fill=tk.X)
@@ -211,16 +225,26 @@ class MainWindow(object):
         self.update_layout_button = ttk.Button(self.actions_frame, text='Update layout.json',
                                                     command=self.update_layout, state=tk.DISABLED)
         self.update_layout_button.pack(fill=tk.X)
+        
+        # Progress bar
+        self.bottom_frame = ttk.Frame(self.win)
+        self.bottom_frame.pack(side=tk.BOTTOM, expand=True, fill=tk.BOTH)
+        self.progress_bar = ttk.Progressbar(self.bottom_frame, mode='determinate', orient=tk.HORIZONTAL,
+                                            maximum=100, value=0)
+        self.progress_bar.pack(fill=tk.X, side=tk.BOTTOM, anchor=tk.S)
+        self.agent = actions.Agent(self.progress_bar)
     
-    def enable_children(self, parent):
+    # Interface methods
+    
+    def set_children_state(self, parent, state:str=tk.NORMAL):
         for key, child in parent.children.items():
             if hasattr(child, 'state'):
                 try:
-                    child['state'] = tk.NORMAL
+                    child['state'] = state
                 except tk.TclError:
                     pass
             if hasattr(child, 'children'):
-                self.enable_children(child)
+                self.set_children_state(child)
     
     # Toolbar methods
     def new_project(self):
@@ -234,7 +258,7 @@ class MainWindow(object):
             else:
                 return
         self.project = Project(path, self.join_model_var.get())
-        self.enable_children(self.win)
+        self.set_children_state(self.win)
         self.agent.project = self.project
     
     def open_project(self):
@@ -249,7 +273,7 @@ class MainWindow(object):
                 return
         self.project = Project(path)
         self.populate(self.win)
-        self.enable_children(self.win)
+        self.set_children_state(self.win)
         self.agent.project = self.project
     
     def populate(self, parent):
@@ -276,8 +300,16 @@ class MainWindow(object):
             self.base_container_frame.load()
     
     # Action methods
+    def wait_agent(self):
+        if self.agent.running:
+            self.win.after(100, self.wait_agent)
+        else:
+            self.set_children_state(self.actions_frame, tk.NORMAL)
     
-    def extract_textures(self): # dds.from_gltf
+    def extract_textures(self):
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
         path = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
             ('glTF models', '*.gltf'),
         ), initialdir=self.origin_entry.value.get(), title='Choose glTF model to extract textures')
@@ -287,9 +319,24 @@ class MainWindow(object):
             except ValueError:
                 messagebox.showerror(title='Error extracting textures',
                                     message=f'Could not extract textures from "{path}".')
+        
+        self.wait_agent()
     
-    def dds_json(self): # package.dds_json.create_description
-        pass
+    def compress_textures(self):
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        self.agent.compress_textures()
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
+    
+    def dds_json(self):
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        self.agent.create_dds_descriptors()
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def create_flags(self): # package.flags.create_flags
         pass
