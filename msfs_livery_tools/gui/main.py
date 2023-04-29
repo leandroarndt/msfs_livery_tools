@@ -257,7 +257,7 @@ class MainWindow(object):
                 shutil.rmtree(path)
             else:
                 return
-        self.project = Project(path, self.join_model_var.get())
+        self.project = Project(path, self.join_model_check_button.value.get())
         self.set_children_state(self.win)
         self.agent.project = self.project
     
@@ -312,7 +312,8 @@ class MainWindow(object):
         
         path = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
             ('glTF models', '*.gltf'),
-        ), initialdir=self.origin_entry.value.get(), title='Choose glTF model to extract textures')
+        ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes'),
+        title='Choose glTF model to extract textures')
         if path:
             try:
                 self.agent.extract_textures(path)
@@ -341,6 +342,28 @@ class MainWindow(object):
     def create_flags(self): # package.flags.create_flags
         pass
     
+    def write_aircraft_cfg(self): # package.aircraft_cfg.write_aircraft.cfg
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        if self.base_container_frame.value.get() == helpers.NOT_SET:
+            path = filedialog.askopenfilename(defaultextension='aircraft.cfg', filetypes=(
+                ('Aircraft configuration', 'aircraft.cfg'),
+            ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes'),
+            title='Choose original aircraft configuration file')
+            if not path:
+                return
+            self.agent.create_aircraft_cfg(path)
+            self.origin_entry.load()
+            self.base_container_frame.load()
+        else:
+            try:
+                self.agent.create_aircraft_cfg()
+            except actions.ConfigurationError as e:
+                messagebox.showerror(title='Configuration error', message=str(e))
+        
+        self.wait_agent()
+    
     def create_panel(self): # package.panel_cfg.create_empty
         pass
     
@@ -348,9 +371,6 @@ class MainWindow(object):
         pass
     
     def set_registration_colors(self): # package.panel_cfg.set_registration_colors
-        pass
-    
-    def write_aircraft_cfg(self): # package.aircraft_cfg.write_aircraft.cfg
         pass
     
     def create_manifest_json(self): # package.manifest.from_original

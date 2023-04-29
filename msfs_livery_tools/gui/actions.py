@@ -1,3 +1,4 @@
+import configparser
 from pathlib import Path
 from tkinter import ttk
 from typing import Callable
@@ -5,7 +6,11 @@ from threading import Thread
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.compression import dds
-from msfs_livery_tools.package import dds_json
+from msfs_livery_tools.package import dds_json, aircraft_cfg
+from .helpers import NOT_SET
+
+class ConfigurationError(Exception):
+    """"""
 
 class Runner(Thread):
     """Abstract thread for tasks with indeterminate length/accomplishment."""
@@ -43,9 +48,10 @@ class Agent(object):
     def monitor(self, thread:Runner):
         if thread.is_alive():
             self.running = True
-            self.progress_bar['mode'] = 'indeterminate'
-            self.progress_bar.start()
-            self.progress_bar.after(100, lambda: self.monitor(thread))
+            if self.progress_bar['mode'] != 'indeterminate':
+                self.progress_bar['mode'] = 'indeterminate'
+                self.progress_bar.start()
+            self.progress_bar.after(30, lambda: self.monitor(thread))
         else:
             self.progress_bar.stop()
             self.restore_progress_bar()
@@ -90,3 +96,49 @@ class Agent(object):
             print(f'Describing "{file}"…')
             dds_json.create_description(file)
         self.restore_progress_bar()
+    
+    def create_aircraft_cfg(self, path:str|None=None):
+        kwargs = {}
+        try:
+            variation_name = self.project.title
+        except KeyError:
+            variation_name = 'Alternative livery'
+        try:
+            suffix = self.project.suffix
+        except KeyError:
+            suffix = 'livery'
+        try:
+            kwargs['model'] = self.project.include_model
+        except KeyError:
+            pass
+        try:
+            kwargs['panel'] = self.project.include_panel
+        except KeyError:
+            pass
+        try:
+            kwargs['sound'] = self.project.include_sound
+        except KeyError:
+            pass
+        try:
+            kwargs['texture'] = self.project.include_texture
+        except KeyError:
+            pass
+        try:
+            kwargs['tail_number'] = self.project.tail_number
+        except KeyError:
+            pass
+        
+        if path is None:
+            try:
+                path = Path(self.project.origin) / 'SimObjects' / 'Airplanes' / Path(self.project.base_container).name
+            except KeyError:
+                raise ConfigurationError('Project improperly configured: could not find origin or base_container.')
+        else:
+            self.project.base_container = Path(path).parent
+        aircraft = aircraft_cfg.from_original(path, base_container=self.project.base_container,
+                                            variation_name=variation_name, suffix=suffix, **kwargs)
+        config = configparser.ConfigParser()
+        config.read_string(aircraft)
+        file_name = Path(self.project.file).parent / 'aircraft.cfg'
+        with file_name.open('w') as file:
+            config.write(file)
