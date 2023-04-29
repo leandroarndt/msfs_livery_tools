@@ -1,6 +1,6 @@
-import configparser
-from pathlib import Path
-from tkinter import ttk
+import configparser, shutil
+from pathlib import Path, PureWindowsPath
+from tkinter import ttk, filedialog
 from typing import Callable
 from threading import Thread
 from msfs_livery_tools.project import Project
@@ -33,17 +33,32 @@ class Agent(object):
     progress_bar:ttk.Progressbar
     progress_bar_maximum:int
     running:bool = False
+    error:Exception|None = None
+    
+    def __init__(self, progress_bar):
+        self.settings = AppSettings()
+        self.progress_bar = progress_bar
+        self.progress_bar_maximum = self.progress_bar['maximum']
     
     def _texture_dir(self)->Path:
         if self.project.join_model_and_textures:
             return Path(self.project.file).parent / 'model'
         else:
             return Path(self.project.file).parent / 'texture'
-        
-    def __init__(self, progress_bar):
-        self.settings = AppSettings()
-        self.progress_bar = progress_bar
-        self.progress_bar_maximum = self.progress_bar['maximum']
+    
+    def _copy(self, source:str|Path, dest:str|Path, overwrite=True):
+        source, dest = Path(source), Path(dest)
+        if not dest.exists():
+            dest.mkdir()
+        if source.is_file():
+            if Path(dest, source.name).exists() and overwrite:
+                    Path(dest, source.name).unlink()
+            shutil.copy(source, dest)
+        for file in source.glob('*'):
+            if file.is_file():
+                if Path(dest, file.name).exists() and overwrite:
+                    Path(dest, file.name).unlink()
+                shutil.copy(file, dest)
     
     def monitor(self, thread:Runner):
         if thread.is_alive():
@@ -99,6 +114,31 @@ class Agent(object):
             dds_json.create_description(file)
         self.restore_progress_bar()
     
+    def create_texture_cfg(self, original:str|None=None):
+        cfg = configparser.ConfigParser()
+        if not original:
+            try:
+                source_folder:Path = Path(self.project.origin) / 'SimObjects' / 'Airplanes' / Path(self.project.base_container).name
+            except KeyError:
+                raise ConfigurationError('Project improperly configured: origin or base_container not set.')
+            for folder in source_folder.glob('texture*'):
+                # fallback:Path = Path('..') / self.project.base_container / folder.name
+                original = folder / 'texture.cfg'
+                break
+            # cfg.add_section('fltsim')
+            # cfg['fltsim']['fallback.1'] = str(PureWindowsPath(fallback))
+        cfg.read(original)
+        fallbacks = list(cfg['fltsim'].keys())
+        fallbacks.reverse()
+        for fb in fallbacks:
+            nothing, n = fb.split('.')
+            n = int(n) + 1
+            cfg['fltsim'][f'fallback.{n}'] = cfg['fltsim'][fb]
+        cfg['fltsim']['fallback.1'] = str(PureWindowsPath('..', '..', Path(original).parent.parent.name, Path(original).parent.name))
+        file_name = self._texture_dir() / 'texture.cfg'
+        with file_name.open('w') as f:
+            cfg.write(f)
+    
     def create_aircraft_cfg(self, path:str|None=None):
         kwargs = {}
         try:
@@ -143,7 +183,7 @@ class Agent(object):
             try:
                 path = Path(self.project.origin) / 'SimObjects' / 'Airplanes' / Path(self.project.base_container).name / 'aircraft.cfg'
             except KeyError:
-                raise ConfigurationError('Project improperly configured: could not find origin or base_container.')
+                raise ConfigurationError('Project improperly configured: origin or base_container not set.')
         else:
             self.project.base_container = Path(path).parent
         aircraft = aircraft_cfg.from_original(path, base_container=self.project.base_container,
@@ -191,11 +231,83 @@ class Agent(object):
             try:
                 path = Path(self.project.origin, 'manifest.json')
             except KeyError:
-                raise ConfigurationError('Project improperly configured: could not find origin.')
+                raise ConfigurationError('Project improperly configured: origin not set.')
         manifest.from_original(path, Path(self.project.file).parent / 'manifest.json', **kwargs)
     
-    def package(path:str):
-        pass
+    def package(self, path:str):
+        thread = Runner(self._do_package, path)
+        thread.start()
+        self.monitor(thread)
+    
+    def _do_package(self, path:str):
+        path:Path = Path(path)
+        path.mkdir(exist_ok=True)
+        try:
+            airplane_path:Path = path / 'SimObjects' / 'Airplanes' / self.project.airplane_folder
+            airplane_path.mkdir(parents=True, exist_ok=True)
+        except KeyError:
+            self.error = ConfigurationError('Airplane folder not set.')
+            raise self.error
+        try:
+            suffix = self.project.suffix
+        except KeyError:
+            suffix = 'livery'
+        
+        # aircraft.cfg
+        if not Path(self.project.file, 'aircraft.cfg').is_file():
+            if not (airplane_path / 'aircraft.cfg').exists():
+                self.create_aircraft_cfg()
+                shutil.move(Path(self.project.file).parent / 'aircraft.cfg', airplane_path)
+        else:
+            self._copy(Path(self.project.file, 'aircraft.cfg'), airplane_path)
+        
+        # Copy panel folder if needed
+        if self.project.include_panel:
+            self._copy(Path(self.project.file).parent / 'panel', airplane_path / f'panel.{suffix}')
+        
+        # Copy sound folder if needed
+        if self.project.include_sound:
+            self._copy(Path(self.project.file).parent / 'sound', airplane_path / f'sound.{suffix}')
+        
+        # Copy model files if needed
+        if self.project.include_model:
+            model_source:Path = Path(self.project.file).parent / 'model'
+            model_dest:Path = Path(airplane_path, f'model.{suffix}')
+            model_dest.mkdir(exist_ok=True)
+            for pattern in ('model.cfg', '*.xml', '*.gltf', '*.bin'):
+                for file in model_source.glob(pattern):
+                    self._copy(file, model_dest)
+        
+        # Copy texture files if needed
+        if self.project.include_texture:
+            texture_source:Path = self._texture_dir()
+            texture_source.mkdir(exist_ok=True)
+            texture_dest:Path = Path(airplane_path, f'texture.{suffix}')
+            texture_dest.mkdir(exist_ok=True)
+            if not Path(texture_source, 'texture.cfg').exists():
+                if not (texture_dest / 'texture.cfg').exists():
+                    self.create_texture_cfg()
+                    shutil.move(Path(texture_source, 'texture.cfg'), texture_dest)
+            else:
+                self._copy(texture_source / 'texture.cfg', texture_dest)
+            if len(list(texture_source.glob('*.dds'))) == 0 and len(list(texture_source.glob('*.png'))) > 0:
+                self.compress_textures()
+                self.create_dds_descriptors()
+            for pattern in ('texture.cfg', '*.dds', '*.dds.json', '*.dds.flags'):
+                for file in texture_source.glob(pattern):
+                    self._copy(file, texture_dest)
+        
+        # Create or copy manifest.json
+        manifest_file = Path(self.project.file).parent / 'manifest.json'
+        if not manifest_file.is_file():
+            if not (path / 'manifest.json').exists():
+                self.create_manifest()
+                shutil.move(manifest_file, path)
+        else:
+            self._copy(manifest_file, path)
+        
+        # Create layout.json
+        self.update_layout(path / 'layout.json')
     
     def update_layout(self, path:str):
         layout.create_layout(Path(path).parent)

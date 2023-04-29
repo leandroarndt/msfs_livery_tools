@@ -62,6 +62,7 @@ class MainWindow(object):
     compress_textures_button:ttk.Button
     dds_json_button:ttk.Button
     texture_flags_button:ttk.Button
+    texture_cfg_button:ttk.Button
     aircraft_actions_separator:styles.Separator
     write_aircraft_button:ttk.Button
     panel_actions_separator:styles.Separator
@@ -188,6 +189,9 @@ class MainWindow(object):
         self.dds_json_button = ttk.Button(self.actions_frame, text='Create texture descriptors',
                                             command=self.dds_json, state=tk.DISABLED)
         self.dds_json_button.pack(fill=tk.X)
+        self.texture_cfg_button = ttk.Button(self.actions_frame, text='Create texture.cfg',
+                                            command=self.create_texture_cfg, state=tk.DISABLED)
+        self.texture_cfg_button.pack(fill=tk.X)
         # self.texture_flags_button = ttk.Button(self.actions_frame, text='Create texture flags',
         #                                         command=self.create_flags, state=tk.DISABLED)
         # self.texture_flags_button.pack(fill=tk.X)
@@ -248,7 +252,7 @@ class MainWindow(object):
     
     # Toolbar methods
     def new_project(self):
-        path = filedialog.askdirectory(mustexist=False)
+        path = filedialog.askdirectory(mustexist=False, title='Select project folder')
         if not path:
             return
         if Path(path, 'livery.ini').exists():
@@ -262,7 +266,7 @@ class MainWindow(object):
         self.agent.project = self.project
     
     def open_project(self):
-        path = filedialog.askdirectory(mustexist=True)
+        path = filedialog.askdirectory(mustexist=True, title='Select project folder')
         if not path:
             return
         if not Path(path, 'livery.ini').is_file():
@@ -312,7 +316,7 @@ class MainWindow(object):
         
         path = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
             ('glTF models', '*.gltf'),
-        ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes'),
+        ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
         title='Choose glTF model to extract textures')
         if path:
             try:
@@ -342,6 +346,19 @@ class MainWindow(object):
     def create_flags(self): # package.flags.create_flags
         pass
     
+    def create_texture_cfg(self):
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        path = filedialog.askopenfilename(defaultextension='texture.cfg', filetypes=(
+            ('Texture configuration', 'texture.cfg'),
+        ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
+        title='Choose original texture configuration file')
+        if path:
+            self.agent.create_texture_cfg(path)
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
+    
     def write_aircraft_cfg(self): # package.aircraft_cfg.write_aircraft.cfg
         self.set_children_state(self.actions_frame, tk.DISABLED)
         self.win.update()
@@ -349,7 +366,7 @@ class MainWindow(object):
         if self.base_container_frame.value.get() == helpers.NOT_SET:
             path = filedialog.askopenfilename(defaultextension='aircraft.cfg', filetypes=(
                 ('Aircraft configuration', 'aircraft.cfg'),
-            ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes'),
+            ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
             title='Choose original aircraft configuration file')
             if not path:
                 return
@@ -383,6 +400,7 @@ class MainWindow(object):
             ), initialdir=Path(self.origin_entry.value.get()),
             title='Choose original aircraft manifest file')
             if not path:
+                self.set_children_state(self.actions_frame, tk.NORMAL)
                 return
             self.agent.create_manifest(path)
             self.origin_entry.load()
@@ -399,12 +417,17 @@ class MainWindow(object):
         self.set_children_state(self.actions_frame, tk.DISABLED)
         self.win.update()
         
-        path = filedialog.askdirectory(mustexist=True, title='Choose package parent folder')
+        path = filedialog.askdirectory(mustexist=True, title='Choose package folder')
         if not path:
+            self.set_children_state(self.actions_frame, tk.NORMAL)
             return
         self.agent.package(path)
         
         self.wait_agent()
+        
+        if self.agent.error:
+            messagebox.showerror(title='Configuration error', message=str(self.agent.error))
+        self.agent.error = None
     
     def update_layout(self): # package.layout.create_layout
         self.set_children_state(self.actions_frame, tk.DISABLED)
