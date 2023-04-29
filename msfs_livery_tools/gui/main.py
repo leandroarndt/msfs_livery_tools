@@ -362,7 +362,7 @@ class MainWindow(object):
             except actions.ConfigurationError as e:
                 messagebox.showerror(title='Configuration error', message=str(e))
         
-        self.wait_agent()
+        self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def create_panel(self): # package.panel_cfg.create_empty
         pass
@@ -374,10 +374,47 @@ class MainWindow(object):
         pass
     
     def create_manifest_json(self): # package.manifest.from_original
-        pass
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        if self.base_container_frame.value.get() == helpers.NOT_SET:
+            path = filedialog.askopenfilename(defaultextension='manifest.json', filetypes=(
+                ('Manifest files', 'manifest.json'),
+            ), initialdir=Path(self.origin_entry.value.get()),
+            title='Choose original aircraft manifest file')
+            if not path:
+                return
+            self.agent.create_manifest(path)
+            self.origin_entry.load()
+            self.base_container_frame.load()
+        else:
+            try:
+                self.agent.create_manifest()
+            except actions.ConfigurationError as e:
+                messagebox.showerror(title='Configuration error', message=str(e))
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def pack_livery(self): # Complex
-        pass
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        path = filedialog.askdirectory(mustexist=True, title='Choose package parent folder')
+        if not path:
+            return
+        self.agent.package(path)
+        
+        self.wait_agent()
     
     def update_layout(self): # package.layout.create_layout
-        pass
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        path = filedialog.askopenfilename(defaultextension='layout.json', filetypes=(
+            ('Package layout', 'layout.json'),
+        ), title='Choose layout file to update')
+        if not path:
+            return
+        self.agent.update_layout(path)
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
