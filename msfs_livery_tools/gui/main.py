@@ -8,11 +8,12 @@ from pathlib import Path
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.compression import dds
 from msfs_livery_tools.package import panel_cfg
-from . import styles, helpers, settings
+from . import styles, helpers, settings, actions
 
 class MainWindow(object):
     project:Project
     win:tk.Tk
+    agent:actions.Agent
     
     # Toolbar
     toolbar_frame:ttk.Frame
@@ -72,6 +73,7 @@ class MainWindow(object):
     def __init__(self):
         self.win = tk.Tk(className='MSFS Livery Tools')
         styles.init(self.win)
+        self.agent = actions.Agent()
         
         # Toolbar
         self.toolbar_frame = ttk.Frame(self.win)
@@ -233,6 +235,7 @@ class MainWindow(object):
                 return
         self.project = Project(path, self.join_model_var.get())
         self.enable_children(self.win)
+        self.agent.project = self.project
     
     def open_project(self):
         path = filedialog.askdirectory(mustexist=True)
@@ -247,6 +250,7 @@ class MainWindow(object):
         self.project = Project(path)
         self.populate(self.win)
         self.enable_children(self.win)
+        self.agent.project = self.project
     
     def populate(self, parent):
         for key, child in parent.children.items():
@@ -274,7 +278,15 @@ class MainWindow(object):
     # Action methods
     
     def extract_textures(self): # dds.from_gltf
-        pass
+        path = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
+            ('glTF models', '*.gltf'),
+        ), initialdir=self.origin_entry.value.get(), title='Choose glTF model to extract textures')
+        if path:
+            try:
+                self.agent.extract_textures(path)
+            except ValueError:
+                messagebox.showerror(title='Error extracting textures',
+                                    message=f'Could not extract textures from "{path}".')
     
     def dds_json(self): # package.dds_json.create_description
         pass
