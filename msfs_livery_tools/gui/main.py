@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+from idlelib.tooltip import Hovertip
 from pathlib import Path
 import webbrowser
 from msfs_livery_tools.project import Project
@@ -24,11 +25,19 @@ class MainWindow(object):
     
     # Toolbar
     toolbar_frame:ttk.Frame
+    new_project_image:tk.PhotoImage
     new_project_button:ttk.Button
+    new_project_tip:Hovertip
+    open_project_image:tk.PhotoImage
     open_project_button:ttk.Button
-    close_project_button:ttk.Button
+    open_project_tip:Hovertip
+    save_project_image:tk.PhotoImage
+    save_project_button:ttk.Button
+    save_project_tip:Hovertip
     toolbar_separator:styles.Separator
+    settings_image:tk.PhotoImage
     settings_button:ttk.Button
+    settings_tip:Hovertip
     
     # Main frame
     middle_frame:ttk.Frame
@@ -117,17 +126,29 @@ class MainWindow(object):
         # Toolbar
         self.toolbar_frame = ttk.Frame(self.win)
         self.toolbar_frame.pack(fill=tk.BOTH, anchor=tk.NW)
-        self.new_project_button = ttk.Button(self.toolbar_frame, text='New Project', command=self.new_project)
+        self.new_project_image = tk.PhotoImage(file=__main__.RESOURCES_DIR / 'button_New project.png')
+        self.new_project_button = ttk.Button(self.toolbar_frame, image=self.new_project_image,
+                                            command=self.new_project)
         self.new_project_button.pack(side=tk.LEFT)
-        self.open_project_button = ttk.Button(self.toolbar_frame, text='Open Project', command=self.open_project)
+        self.new_project_tip = Hovertip(self.new_project_button, 'New project', 500)
+        self.open_project_image = tk.PhotoImage(file=__main__.RESOURCES_DIR / 'button_Open project.png')
+        self.open_project_button = ttk.Button(self.toolbar_frame, image=self.open_project_image,
+                                            command=self.open_project)
         self.open_project_button.pack(side=tk.LEFT)
-        self.save_project_button = ttk.Button(self.toolbar_frame, text='Save project', command=self.save_project,
+        self.open_project_tip = Hovertip(self.open_project_button, 'Open project', 500)
+        self.save_project_image =tk.PhotoImage(file=__main__.RESOURCES_DIR / 'button_Save project.png')
+        self.save_project_button = ttk.Button(self.toolbar_frame, image=self.save_project_image,
+                                                command=self.save_project,
                                                 state=tk.DISABLED)
         self.save_project_button.pack(side=tk.LEFT)
+        self.save_project_tip = Hovertip(self.save_project_button, 'Save project', 500)
         self.toolbar_separator = styles.Separator(self.toolbar_frame, orient=tk.VERTICAL)
         self.toolbar_frame.pack(fill=tk.Y)
-        self.settings_button = ttk.Button(self.toolbar_frame, text='Settings', command=self.settings)
+        self.settings_image = tk.PhotoImage(file=__main__.RESOURCES_DIR / 'button_Settings.png')
+        self.settings_button = ttk.Button(self.toolbar_frame, image=self.settings_image,
+                                            command=self.settings)
         self.settings_button.pack(side=tk.LEFT)
+        self.settings_tip = Hovertip(self.settings_button, 'Application settings', 500)
         
         # Main Frame
         self.middle_frame = ttk.Frame(self.win)
