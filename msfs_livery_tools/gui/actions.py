@@ -46,7 +46,7 @@ class Agent(object):
         else:
             return Path(self.project.file).parent / 'texture'
     
-    def _copy(self, source:str|Path, dest:str|Path, overwrite=True):
+    def _copy(self, source:str|Path, dest:str|Path, pattern='*', overwrite=True):
         source, dest = Path(source), Path(dest)
         if not dest.exists():
             dest.mkdir()
@@ -54,7 +54,7 @@ class Agent(object):
             if Path(dest, source.name).exists() and overwrite:
                     Path(dest, source.name).unlink()
             shutil.copy(source, dest)
-        for file in source.glob('*'):
+        for file in source.glob(pattern):
             if file.is_file():
                 if Path(dest, file.name).exists() and overwrite:
                     Path(dest, file.name).unlink()
@@ -88,6 +88,7 @@ class Agent(object):
         output_dir = self._texture_dir()
         if not output_dir.is_dir():
             output_dir.mkdir()
+        self._copy(texture_dir, output_dir, '*.flags')
         thread = Runner(dds.from_glft, gltf, texture_dir, output_dir, self.settings.texconv_path)
         thread.start()
         self.monitor(thread)

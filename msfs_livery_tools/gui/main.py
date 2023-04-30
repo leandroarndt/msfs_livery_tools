@@ -15,6 +15,10 @@ class MainWindow(object):
     win:tk.Tk
     agent:actions.Agent
     
+    # Menu
+    menu:tk.Menu
+    file_menu:tk.Menu
+    
     # Toolbar
     toolbar_frame:ttk.Frame
     new_project_button:ttk.Button
@@ -82,6 +86,22 @@ class MainWindow(object):
     def __init__(self):
         self.win = tk.Tk(className='MSFS Livery Tools')
         styles.init(self.win)
+        
+        # Menu
+        self.menu = tk.Menu(self.win)
+        self.win.config(menu=self.menu)
+        self.file_menu = tk.Menu(self.menu)
+        self.file_menu.add_command(label='New…', command=self.new_project, underline=0, accelerator='Ctrl+N')
+        self.win.bind_all('<Control-n>', lambda event: self.new_project())
+        self.file_menu.add_command(label='Open…', command=self.open_project, underline=0, accelerator='Ctrl+O')
+        self.win.bind_all('<Control-o>', lambda event: self.open_project())
+        self.file_menu.add_command(label='Save', command=self.save_project, underline=0, accelerator='Ctrl+S', state=tk.DISABLED)
+        self.win.bind_all('<Control-s>', lambda event: self.save_project())
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label='Quit', command=self.win.destroy, accelerator='Ctrl+Q')
+        self.win.bind_all('<Control-q>', lambda event: self.win.destroy())
+        self.menu.add_cascade(label='File', underline=0, menu=self.file_menu)
+        self.menu.add_command(label='Settings', command=self.settings, underline=0)
         
         # Toolbar
         self.toolbar_frame = ttk.Frame(self.win)
@@ -263,6 +283,7 @@ class MainWindow(object):
                 return
         self.project = Project(path, self.join_model_check_button.value.get())
         self.set_children_state(self.win)
+        self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
     
     def open_project(self):
@@ -278,6 +299,7 @@ class MainWindow(object):
         self.project = Project(path)
         self.populate(self.win)
         self.set_children_state(self.win)
+        self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
     
     def populate(self, parent):
