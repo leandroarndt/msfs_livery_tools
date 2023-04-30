@@ -7,6 +7,7 @@ from typing import Callable
 from pathlib import Path
 
 NOT_SET = '---'
+TEXCONV_URL = 'https://github.com/Microsoft/DirectXTex/wiki/Texconv'
 
 class ProjectMixin(object):
     """Mixin to add an update_project method.

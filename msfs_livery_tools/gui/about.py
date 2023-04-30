@@ -1,7 +1,7 @@
 import webbrowser
 import tkinter as tk
 from tkinter import ttk
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
 from . import styles
 import __main__
 
@@ -24,6 +24,7 @@ class About(object):
         self.master = master
         self.win = tk.Toplevel(self.master)
         self.win.title('About MSFS Livery Tools')
+        self.win.iconbitmap(Path(__main__.RESOURCES_DIR, 'msfs livery tools.ico'))
         self.win.resizable(False, False)
         self.header_image = tk.PhotoImage(file=PureWindowsPath(__main__.RESOURCES_DIR, 'header.png'))
         self.header_label = ttk.Label(self.win, image=self.header_image)

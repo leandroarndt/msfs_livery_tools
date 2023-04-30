@@ -320,15 +320,14 @@ class Agent(object):
             texture_source.mkdir(exist_ok=True)
             texture_dest:Path = Path(airplane_path, f'texture.{suffix}')
             texture_dest.mkdir(exist_ok=True)
-            if self.settings.compress_textures_on_build:
-                self.compress_textures()
             if not Path(texture_source, 'texture.cfg').exists():
                 if not (texture_dest / 'texture.cfg').exists():
                     self.create_texture_cfg()
                     shutil.move(Path(texture_source, 'texture.cfg'), texture_dest)
             else:
                 self._copy(texture_source / 'texture.cfg', texture_dest)
-            if len(list(texture_source.glob('*.dds'))) == 0 and len(list(texture_source.glob('*.png'))) > 0:
+            if self.settings.compress_textures_on_build or \
+                (len(list(texture_source.glob('*.dds'))) == 0 and len(list(texture_source.glob('*.png'))) > 0):
                 self.compress_textures()
                 self.create_dds_descriptors()
             for pattern in ('texture.cfg', '*.dds', '*.dds.json', '*.dds.flags'):
