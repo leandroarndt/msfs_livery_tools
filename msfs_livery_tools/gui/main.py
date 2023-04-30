@@ -382,13 +382,35 @@ class MainWindow(object):
         self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def create_panel(self): # package.panel_cfg.create_empty
-        pass
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        self.agent.create_empty_panel()
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def copy_panel(self): # package.panel_cfg.copy_original
-        pass
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        path = filedialog.askopenfilename(defaultextension='panel.cfg', filetypes=(
+            ('Panel configuration', 'panel.cfg'),
+        ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
+        title='Choose original panel configuration file')
+        self.agent.copy_panel(path)
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def set_registration_colors(self): # package.panel_cfg.set_registration_colors
-        pass
+        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.win.update()
+        
+        try:
+            self.agent.set_registration_colors()
+        except actions.ConfigurationError as e:
+            messagebox.showerror('Configuration error', str(e))
+        
+        self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def create_manifest_json(self): # package.manifest.from_original
         self.set_children_state(self.actions_frame, tk.DISABLED)

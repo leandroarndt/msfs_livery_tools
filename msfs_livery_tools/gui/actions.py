@@ -6,7 +6,7 @@ from threading import Thread
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.compression import dds
-from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout
+from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout, panel_cfg
 from .helpers import NOT_SET
 
 class ConfigurationError(Exception):
@@ -191,6 +191,41 @@ class Agent(object):
         file_name = Path(self.project.file).parent / 'aircraft.cfg'
         with file_name.open('w') as file:
             file.write(aircraft)
+    
+    def create_empty_panel(self):
+        panel_cfg.create_empty(Path(self.project.file).parent / 'panel' / 'panel.cfg')
+    
+    def copy_panel(self, path:str|None=None):
+        if not path:
+            try:
+                path = Path(self.project.origin) / 'SimObjects' / 'Airplanes' / Path(self.project.base_container).name / 'panel' / 'panel.cfg'
+            except KeyError:
+                raise ConfigurationError('Project improperly configured: origin or base_container not set.')
+        panel_cfg.copy_original(Path(self.project.file).parent / 'panel' / 'panel.cfg', path)
+    
+    def set_registration_colors(self):
+        if not (Path(self.project.file).parent / 'panel' / 'panel.cfg').is_file():
+            self.create_empty_panel()
+        try:
+            stroke = self.project.registration_stroke_color
+        except KeyError:
+            stroke = ''
+        try:
+            stroke_size = self.project.registration_stroke_size
+        except KeyError:
+            stroke_size = 0
+        try:
+            if stroke_size:
+                panel_cfg.set_registration_colors(Path(self.project.file).parent / 'panel' / 'panel.cfg',
+                                        font=self.project.registration_font_color,
+                                        stroke=stroke,
+                                        stroke_size=stroke_size)
+            else:
+                panel_cfg.set_registration_colors(Path(self.project.file).parent / 'panel' / 'panel.cfg',
+                                        font=self.project.registration_font_color,
+                                        stroke=stroke)
+        except KeyError:
+            raise ConfigurationError('Registration font color not configured.')
     
     def create_manifest(self, path:str|None=None):
         kwargs = {}
