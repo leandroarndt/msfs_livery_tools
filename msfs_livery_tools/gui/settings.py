@@ -1,3 +1,4 @@
+import webbrowser
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -14,7 +15,7 @@ class SettingsWindow(object):
     compress_on_build_var:tk.BooleanVar
     compress_on_build_button:ttk.Checkbutton
     texconv_frame:helpers.PathChooser
-    master:tk.Tk
+    download_texconv_button:ttk.Button
     ok_button:ttk.Button
     cancel_button:ttk.Button
     
@@ -44,6 +45,9 @@ class SettingsWindow(object):
         self.ok_button.pack(side=tk.RIGHT)
         self.cancel_button = ttk.Button(self.buttons_frame, command=self.cancel_command, text='Cancel')
         self.cancel_button.pack(side=tk.RIGHT)
+        self.download_texconv_button = ttk.Button(self.buttons_frame, command=self.download_texconv,
+                                                text='Download texconv')
+        self.download_texconv_button.pack(side=tk.LEFT)
         self.win.grab_set()
     
     def set_compress_on_build(self):
@@ -55,6 +59,9 @@ class SettingsWindow(object):
                                             ))
         if Path(path).is_file():
             self.texconv_frame.value.set(path)
+    
+    def download_texconv(self):
+        webbrowser.open(helpers.TEXCONV_URL)
     
     def ok_command(self):
         self.settings.texconv_path = self.texconv_frame.value.get()

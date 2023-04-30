@@ -115,12 +115,15 @@ class MainWindow(object):
         self.menu.add_cascade(label='File', underline=0, menu=self.file_menu)
         self.menu.add_command(label='Settings', command=self.settings, underline=0)
         self.help_menu = tk.Menu(self.menu)
-        self.help_menu.add_command(label='Manual',
+        self.help_menu.add_command(label='Online manual',
             command = lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki'),
-            underline=0)
+            underline=7)
         self.help_menu.add_command(label='About', underline=0, command=self.about)
         self.help_menu.add_command(label='@fswt', underline=1,
                                     command=lambda: webbrowser.open(__main__.YOUTUBE))
+        self.help_menu.add_separator()
+        self.help_menu.add_command(label='Download texconv', underline=9,
+                                    command=lambda: webbrowser.open(helpers.TEXCONV_URL))
         self.menu.add_cascade(label='Help', underline=0, menu=self.help_menu)
         
         # Toolbar
