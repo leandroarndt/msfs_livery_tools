@@ -12,6 +12,7 @@ class About(object):
     header_image:tk.PhotoImage
     header_label:ttk.Label
     about_label:ttk.Label
+    version_label:ttk.Label
     copyright_title:ttk.Label
     copyright_message:ttk.Label
     button_frame:ttk.Frame
@@ -31,6 +32,8 @@ class About(object):
         self.header_label.pack(side=tk.TOP, fill=tk.X, expand=True)
         self.about_label = ttk.Label(self.win, text=__main__.ABOUT)
         self.about_label.pack(side=tk.TOP, fill=tk.X, expand=True)
+        self.version_label = ttk.Label(self.win, text=f'Running version {__main__.VERSION}.{__main__.SUBVERSION}.')
+        self.version_label.pack(side=tk.TOP, fill=tk.X, expand=True)
         self.copyright_title = ttk.Label(self.win, text='Use, modification and distribution terms',
                                         style=styles.HEADING)
         self.copyright_title.pack(side=tk.TOP)
