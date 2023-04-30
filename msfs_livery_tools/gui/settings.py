@@ -29,11 +29,11 @@ class SettingsWindow(object):
         self.settings_frame = ttk.Frame(self.win)
         self.settings_frame.pack(padx=5, pady=5, fill=tk.X)
         self.compress_on_build_var = tk.BooleanVar(self.win, value=self.settings.compress_textures_on_build)
-        self.compress_on_build_button = ttk.Checkbutton(self.win, command=self.set_compress_on_build,
+        self.compress_on_build_button = ttk.Checkbutton(self.settings_frame, command=self.set_compress_on_build,
                                                         text='Compress textures on build',
                                                         variable=self.compress_on_build_var)
         self.compress_on_build_button.pack(side=tk.TOP, fill=tk.X)
-        self.texconv_frame = helpers.PathChooser(self.win, self,
+        self.texconv_frame = helpers.PathChooser(self.settings_frame, self,
                                                 property='texconv_path',
                                                 button_command=self.choose_texconv_path,
                                                 title='Texconv.exe path', state=tk.NORMAL)
