@@ -25,6 +25,25 @@ class AppSettings(object):
     def texconv_path(self, path:str):
         __class__._config_parser['GENERAL']['texconv_path'] = path
     
+    @property
+    def recent_files(self)->list[str]:
+        try:
+            return __class__._config_parser['GENERAL']['recent'].split('|')
+        except KeyError:
+            return []
+    
+    @recent_files.setter
+    def recent_files(self, path:str):
+        try:
+            recent = __class__._config_parser['GENERAL']['recent'].split('|')
+            if path in recent:
+                recent.remove(path)
+            recent = [path] + recent
+            recent = recent[:5]
+            __class__._config_parser['GENERAL']['recent'] = '|'.join(recent)
+        except KeyError:
+            __class__._config_parser['GENERAL']['recent'] = str(path)
+    
     def __init__(self, *args, **kwargs):
         self.file = Path(Path.home(), '.msfs_livery_tools.cfg')
         if __class__._config_parser is None:

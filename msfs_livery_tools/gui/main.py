@@ -5,22 +5,25 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from idlelib.tooltip import Hovertip
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import webbrowser
 from msfs_livery_tools.project import Project
-from msfs_livery_tools.compression import dds
-from msfs_livery_tools.package import panel_cfg
+from msfs_livery_tools.settings import AppSettings
 from . import styles, helpers, settings, actions, about
 import __main__
 
 class MainWindow(object):
     project:Project
+    app_settings:AppSettings
+    
+    # Main window
     win:tk.Tk
     agent:actions.Agent
     
     # Menu
     menu:tk.Menu
     file_menu:tk.Menu
+    recent_menu:tk.Menu
     help_menu:tk.Menu
     
     # Toolbar
@@ -96,6 +99,9 @@ class MainWindow(object):
     progress_bar:ttk.Progressbar
     
     def __init__(self):
+        self.app_settings = AppSettings()
+        
+        # Main window
         self.win = tk.Tk(className='MSFS Livery Tools')
         styles.init(self.win)
         
@@ -109,6 +115,8 @@ class MainWindow(object):
         self.win.bind_all('<Control-o>', lambda event: self.open_project())
         self.file_menu.add_command(label='Save', command=self.save_project, underline=0, accelerator='Ctrl+S', state=tk.DISABLED)
         self.win.bind_all('<Control-s>', lambda event: self.save_project())
+        self.recent_menu = self.build_recent_menu()
+        self.file_menu.add_cascade(label='Open recent', underline=5, menu=self.recent_menu)
         self.file_menu.add_separator()
         self.file_menu.add_command(label='Quit', command=self.win.destroy, accelerator='Ctrl+Q')
         self.win.bind_all('<Control-q>', lambda event: self.win.destroy())
@@ -321,21 +329,26 @@ class MainWindow(object):
         self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
     
-    def open_project(self):
-        path = filedialog.askdirectory(mustexist=True, title='Select project folder')
+    def open_project(self, path:str|None=None):
         if not path:
-            return
-        if not Path(path, 'livery.ini').is_file():
-            if messagebox.askretrycancel('Project not found!',
-                                    f'No project found at {path}!'):
-                self.open_project()
-            else:
+            path = filedialog.askdirectory(mustexist=True, title='Select project folder')
+            if not path:
                 return
+            if not Path(path, 'livery.ini').is_file():
+                if messagebox.askretrycancel('Project not found!',
+                                        f'No project found at {path}!'):
+                    self.open_project()
+                else:
+                    return
         self.project = Project(path)
         self.populate(self.win)
         self.set_children_state(self.win)
         self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
+        self.app_settings.recent_files = path
+        self.app_settings.save()
+        self.recent_menu = self.build_recent_menu()
+        self.file_menu.entryconfigure(4, menu=self.recent_menu)
     
     def populate(self, parent):
         for key, child in parent.children.items():
@@ -346,6 +359,18 @@ class MainWindow(object):
     
     def save_project(self):
         self.project.save()
+    
+    def build_recent_menu(self)->tk.Menu:
+        menu = tk.Menu(self.file_menu)
+        recent = self.app_settings.recent_files
+        if len(recent) == 0:
+            menu.add_command(label='(Empty)', state=tk.DISABLED)
+        n = 0
+        for file in self.app_settings.recent_files:
+            n += 1
+            menu.add_command(label=f'{n} {PureWindowsPath(file)}', underline=0,
+                            command=lambda: self.open_project(file))
+        return menu
     
     def settings(self):
         settings_window = settings.SettingsWindow(self.win)
