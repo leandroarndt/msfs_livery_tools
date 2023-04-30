@@ -5,10 +5,12 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from pathlib import Path
+import webbrowser
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.compression import dds
 from msfs_livery_tools.package import panel_cfg
-from . import styles, helpers, settings, actions
+from . import styles, helpers, settings, actions, about
+import __main__
 
 class MainWindow(object):
     project:Project
@@ -18,6 +20,7 @@ class MainWindow(object):
     # Menu
     menu:tk.Menu
     file_menu:tk.Menu
+    help_menu:tk.Menu
     
     # Toolbar
     toolbar_frame:ttk.Frame
@@ -102,6 +105,14 @@ class MainWindow(object):
         self.win.bind_all('<Control-q>', lambda event: self.win.destroy())
         self.menu.add_cascade(label='File', underline=0, menu=self.file_menu)
         self.menu.add_command(label='Settings', command=self.settings, underline=0)
+        self.help_menu = tk.Menu(self.menu)
+        self.help_menu.add_command(label='Manual',
+            command = lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki'),
+            underline=0)
+        self.help_menu.add_command(label='About', underline=0, command=self.about)
+        self.help_menu.add_command(label='@fswt', underline=1,
+                                    command=lambda: webbrowser.open(__main__.YOUTUBE))
+        self.menu.add_cascade(label='Help', underline=0, menu=self.help_menu)
         
         # Toolbar
         self.toolbar_frame = ttk.Frame(self.win)
@@ -270,7 +281,7 @@ class MainWindow(object):
             if hasattr(child, 'children'):
                 self.set_children_state(child)
     
-    # Toolbar methods
+    # Menu/Toolbar methods
     def new_project(self):
         path = filedialog.askdirectory(mustexist=False, title='Select project folder')
         if not path:
@@ -315,6 +326,10 @@ class MainWindow(object):
     def settings(self):
         settings_window = settings.SettingsWindow(self.win)
         settings_window.win.wait_window(settings_window.master)
+    
+    def about(self):
+        about_window = about.About(self.win)
+        about_window.win.wait_window(about_window.master)
     
     # Project methods
     def choose_origin(self):
