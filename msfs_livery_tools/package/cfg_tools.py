@@ -26,6 +26,47 @@ def get_section(section:str, config:configparser.ConfigParser,
         return config[section]
     raise ValueError(f'Section {section} does not exist.')
 
+def get_section_names(prefix:str|None, config:configparser.ConfigParser)->list[str]:
+    """Returns a list of sections with name beginning with "prefix"
+
+    Args:
+        prefix (str | None): beginning of the section name. No filtering if None.
+        config (configparser.ConfigParser): configuration parser.
+
+    Returns:
+        list[str]: list of matching section names.
+    """
+    result = []
+    for section in config.sections():
+        if section.upper().startswith(prefix.upper()):
+            result.append(section)
+    return result
+
+def get_next_section_number(prefix:str, config:configparser.ConfigParser, separator:str|None=None)->int:
+    """Returns the integer following the highest section numerical suffix 
+
+    Args:
+        prefix (str): first part of the section name.
+        config (configparser.ConfigParser): configuration parser.
+        separator(str, defaults to None): separator between prefix and numerical suffix.
+
+    Returns:
+        int: the integer number following the highest numerical suffix found.
+    """
+    sections = get_section_names(prefix, config)
+    highest = 0
+    for section in sections:
+        try:
+            if separator:
+                if int(section.split(separator)[-1]) > highest:
+                    highest = int(section.split(separator)[-1])
+            else:
+                if int(section[len(prefix):]) > highest:
+                    highest = int(section[len(prefix):])
+        except ValueError:
+            pass
+    return highest + 1
+
 def get_section_with_info(section_type:str, config:configparser.ConfigParser,
                             value_contains:dict={}, value_equal:dict={})->configparser.SectionProxy:
     """Gets a config section of type "section_type" with the given setting-value pair.

@@ -1,7 +1,7 @@
 """Functions to manipulate panel.cfg"""
 import configparser
 from pathlib import Path
-from .cfg_tools import get_section, get_section_with_info
+from .cfg_tools import get_section, get_section_with_info, get_next_section_number
 
 def create_empty(file_name):
     """Creates almost empty panel.cfg with [VARIATION] section.
@@ -40,11 +40,16 @@ def set_registration_colors(file_name:str, font:str='black', stroke:str='',
     """
     if not font:
         raise ValueError('Font color must not be void.')
-    panel = configparser.ConfigParser(comment_prefixes=(';', '//'))
+    panel:configparser.ConfigParser = configparser.ConfigParser(comment_prefixes=(';', '//'))
     panel.read(file_name)
-    registration = get_section_with_info('VPainting', panel,
+    try:
+        registration = get_section_with_info('VPainting', panel,
                                         value_contains={'texture': 'registration'},
                                         value_equal={'location': 'exterior'})
+    except ValueError:
+        number = get_next_section_number('VPainting', panel)
+        panel.add_section(f'VPainting{number:02x}')
+        registration = panel[f'VPainting{number:02x}']
     registration['painting00'] = f'Registration/Registration.html?font_color={font}\
 {"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
 {stroke}, 0, 0, {registration["size_mm"]}'
