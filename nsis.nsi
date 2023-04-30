@@ -7,7 +7,7 @@
 Name 'MSFS Livery Tools'
 
 # define name of installer
-OutFile "MSFS Livery Tools.exe"
+OutFile "MSFS_Livery_Tools.exe"
  
 # define installation directory
 InstallDir "$PROGRAMFILES\MSFS Livery Tools"
