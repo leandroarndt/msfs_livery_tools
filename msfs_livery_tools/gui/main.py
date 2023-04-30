@@ -105,6 +105,7 @@ class MainWindow(object):
         self.win = tk.Tk()
         styles.init(self.win)
         self.win.title('MSFS Livery Tools')
+        self.win.iconbitmap(Path(__main__.RESOURCES_DIR, 'msfs livery tools.ico'))
         
         # Menu
         self.menu = tk.Menu(self.win)

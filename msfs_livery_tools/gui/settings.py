@@ -5,6 +5,7 @@ from tkinter import filedialog
 from pathlib import Path
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.gui import helpers
+import __main__
 
 class SettingsWindow(object):
     win:tk.Tk
@@ -24,6 +25,7 @@ class SettingsWindow(object):
         self.win = tk.Toplevel(self.master)
         self.win.transient(self.master)
         self.win.title('MSFS Livery Tools settings')
+        self.win.iconbitmap(Path(__main__.RESOURCES_DIR, 'msfs livery tools.ico'))
         self.settings = AppSettings()
         self.project = self.settings
         self.settings_frame = ttk.Frame(self.win)
