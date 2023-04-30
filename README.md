@@ -13,7 +13,7 @@ so that you can focus on your creative work:
   * variation override;
   * external registration font color and stroke.
 * Creating descriptive JSON files for DDS textures (.DDS.json).
-* Creating flag file for textures (.FLAGS)
+* Creating flag file for textures (.FLAGS) – not on the graphical user interface
 * Creating package layout files ("layout.json")
 
 ## Instalation
