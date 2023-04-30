@@ -7,6 +7,17 @@ class AppSettings(object):
     file:Path
     
     @property
+    def compress_textures_on_build(self)->bool:
+        try:
+            return True if __class__._config_parser['BUILD']['compress_textures'] == 'True' else False
+        except KeyError:
+            return True
+    
+    @compress_textures_on_build.setter
+    def compress_textures_on_build(self, value:bool):
+        __class__._config_parser['BUILD']['compress_textures'] = str(value)
+    
+    @property
     def texconv_path(self)->str:
         return __class__._config_parser['GENERAL']['texconv_path']
     
@@ -19,9 +30,10 @@ class AppSettings(object):
         if __class__._config_parser is None:
             __class__._config_parser = configparser.ConfigParser()
         __class__._config_parser.read(self.file)
-        if 'GENERAL' not in __class__._config_parser.sections():
-            __class__._config_parser.add_section('GENERAL')
-            self.save()
+        for section in ('GENERAL', 'BUILD'):
+            if section not in __class__._config_parser.sections():
+                __class__._config_parser.add_section(section)
+                self.save()
         
     def save(self, *args, **kwargs):
         with open(self.file, 'w') as f:

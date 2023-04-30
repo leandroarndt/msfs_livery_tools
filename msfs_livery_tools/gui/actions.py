@@ -320,6 +320,8 @@ class Agent(object):
             texture_source.mkdir(exist_ok=True)
             texture_dest:Path = Path(airplane_path, f'texture.{suffix}')
             texture_dest.mkdir(exist_ok=True)
+            if self.settings.compress_textures_on_build:
+                self.compress_textures()
             if not Path(texture_source, 'texture.cfg').exists():
                 if not (texture_dest / 'texture.cfg').exists():
                     self.create_texture_cfg()
