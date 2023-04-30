@@ -11,11 +11,11 @@ class SettingsWindow(object):
     project:AppSettings # This name is used by GUI helpers
     frame:ttk.Frame
     texconv_frame:helpers.PathChooser
-    master:object
+    master:tk.Tk
     ok_button:ttk.Button
     cancel_button:ttk.Button
     
-    def __init__(self, master):
+    def __init__(self, master:tk.Tk):
         self.master = master
         self.win = tk.Toplevel(self.master)
         self.win.transient(self.master)
