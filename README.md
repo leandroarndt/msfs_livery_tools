@@ -13,12 +13,13 @@ so that you can focus on your creative work:
   * variation override;
   * external registration font color and stroke.
 * Creating descriptive JSON files for DDS textures (.DDS.json).
-* Creating flag file for textures (.FLAGS)
+* Creating flag file for textures (.FLAGS) – not on the graphical user interface
 * Creating package layout files ("layout.json")
 
-## Instalation
+## Instalation and usage
 
-Download latest [release](https://github.com/leandroarndt/msfs_livery_tools/releases) and use the provided tools in a Python 3 interpreter.
+Download latest [release](https://github.com/leandroarndt/msfs_livery_tools/releases) and use the provided tools or the GUI in a Python 3 interpreter.
+The command `python livery_tools.py` opens the graphical user interface.
 
 ## TODO
 

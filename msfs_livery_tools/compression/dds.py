@@ -1,12 +1,16 @@
 """Deals with DDS compression using Microsoft's texconv (https://github.com/Microsoft/DirectXTex/wiki/Texconv)."""
 import os, subprocess, json
 
-def convert(input:str, output_dir:str, texconv_path:str, out_type:str='dds', out_format:str=''):
+def convert(input:str, output_dir:str, texconv_path:str, out_type:str='dds', out_format:str='',
+            overwrite:bool=True):
     """Converts image types."""
+    command = [texconv_path, '-o', output_dir, '-ft', out_type,]
     if out_format:
-        proc = subprocess.run([texconv_path, '-o', output_dir, '-ft', out_type, '-f', out_format, input])
-    else:
-        proc = subprocess.run([texconv_path, '-o', output_dir, '-ft', out_type, input])
+        command += ['-f', out_format]
+    if overwrite:
+        command += ['-y']
+    command += [input]
+    proc = subprocess.run(command)
     return proc.returncode
 
 def from_glft(input_gltf:str, input_dir:str, output_dir:str, texconv_path:str, type:str='png'):

@@ -109,27 +109,27 @@ class ProjectTestCase(unittest.TestCase):
     
     def test_model(self):
         p = Project(path)
-        p.model = True
-        self.assertEqual(p.model, True)
-        self.assertEqual(str(p.model), Project._parsers[parser_key]['AIRCRAFT']['model'])
+        p.include_model = True
+        self.assertEqual(p.include_model, True)
+        self.assertEqual(str(p.include_model), Project._parsers[parser_key]['AIRCRAFT']['model'])
     
     def test_panel(self):
         p = Project(path)
-        p.panel = True
-        self.assertEqual(p.panel, True)
-        self.assertEqual(str(p.panel), Project._parsers[parser_key]['AIRCRAFT']['panel'])
+        p.include_panel = True
+        self.assertEqual(p.include_panel, True)
+        self.assertEqual(str(p.include_panel), Project._parsers[parser_key]['AIRCRAFT']['panel'])
     
     def test_sound(self):
         p = Project(path)
-        p.sound = True
-        self.assertEqual(p.sound, True)
-        self.assertEqual(str(p.sound), Project._parsers[parser_key]['AIRCRAFT']['sound'])
+        p.include_sound = True
+        self.assertEqual(p.include_sound, True)
+        self.assertEqual(str(p.include_sound), Project._parsers[parser_key]['AIRCRAFT']['sound'])
     
     def test_texture(self):
         p = Project(path)
-        p.texture = True
-        self.assertEqual(p.texture, True)
-        self.assertEqual(str(p.texture), Project._parsers[parser_key]['AIRCRAFT']['texture'])
+        p.include_texture = True
+        self.assertEqual(p.include_texture, True)
+        self.assertEqual(str(p.include_texture), Project._parsers[parser_key]['AIRCRAFT']['texture'])
     
     def test_registration_font_color(self):
         p = Project(path)

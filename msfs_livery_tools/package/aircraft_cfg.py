@@ -4,7 +4,7 @@ import io
 from pathlib import Path
 from .cfg_tools import get_section
 
-def from_original(file_name:str, variation_name, suffix:str, model:bool=False,
+def from_original(file_name:str, base_container:str, variation_name, suffix:str, model:bool=False,
                     panel:bool=False, sound:bool=False, texture:bool=True,
                     tail_number:str='ASGX'):
     """Returns aircraft.cfg based on original and parameters."""
@@ -15,7 +15,7 @@ def from_original(file_name:str, variation_name, suffix:str, model:bool=False,
     
     # Defines the original aircraft virtual file system dir
     variation_section = get_section('VARIATION', original)
-    variation_section['base_container'] = f'"..\{Path(file_name).parent.parent.parent.parent.name}"'
+    variation_section['base_container'] = base_container
     
     # Updates FLTSIM.
     fltsim = get_section('FLTSIM.0', original)
