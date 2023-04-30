@@ -102,8 +102,9 @@ class MainWindow(object):
         self.app_settings = AppSettings()
         
         # Main window
-        self.win = tk.Tk(className='MSFS Livery Tools')
+        self.win = tk.Tk()
         styles.init(self.win)
+        self.win.title('MSFS Livery Tools')
         
         # Menu
         self.menu = tk.Menu(self.win)
