@@ -3,6 +3,10 @@ import configparser
 from pathlib import Path
 from .cfg_tools import get_section, get_section_with_info, get_next_section_number
 
+class RegistrationWarning(Exception):
+    """Could not find registration section.
+    Warn the user about reviewing the panel.cfg file."""
+
 def create_empty(file_name):
     """Creates almost empty panel.cfg with [VARIATION] section.
     """
@@ -42,17 +46,24 @@ def set_registration_colors(file_name:str, font:str='black', stroke:str='',
         raise ValueError('Font color must not be void.')
     panel:configparser.ConfigParser = configparser.ConfigParser(comment_prefixes=(';', '//'))
     panel.read(file_name)
+    number = -1
     try:
         registration = get_section_with_info('VPainting', panel,
                                         value_contains={'texture': 'registration'},
                                         value_equal={'location': 'exterior'})
+        registration['painting00'] = f'Registration/Registration.html?font_color={font}\
+        {"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
+        {stroke}, 0, 0, {registration["size_mm"]}'
     except ValueError:
         number = get_next_section_number('VPainting', panel)
         panel.add_section(f'VPainting{number:02x}')
         registration = panel[f'VPainting{number:02x}']
-    registration['painting00'] = f'Registration/Registration.html?font_color={font}\
-{"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
-{stroke}, 0, 0, {registration["size_mm"]}'
+        registration['size_mm'] = '2048, 512' # User should adjust to the project needs
+        registration['painting00'] = f'Registration/Registration.html?font_color={font}\
+        {"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
+        {stroke}, 0, 0, {registration["size_mm"]}'
     file = Path(file_name).open('w', encoding='utf8')
     panel.write(file)
     file.close()
+    if number > -1: # Created a new section, warn the user!
+        raise RegistrationWarning(f'Could not find registration configuration on original file. Please review "{file_name}".')

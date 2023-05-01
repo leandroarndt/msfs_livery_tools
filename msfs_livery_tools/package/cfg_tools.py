@@ -54,7 +54,7 @@ def get_next_section_number(prefix:str, config:configparser.ConfigParser, separa
         int: the integer number following the highest numerical suffix found.
     """
     sections = get_section_names(prefix, config)
-    highest = 0
+    highest = -1
     for section in sections:
         try:
             if separator:

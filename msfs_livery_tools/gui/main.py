@@ -9,6 +9,7 @@ from pathlib import Path, PureWindowsPath
 import webbrowser
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
+from msfs_livery_tools.package import panel_cfg
 from . import styles, helpers, settings, actions, about
 import __main__
 
@@ -547,6 +548,8 @@ class MainWindow(object):
             self.agent.set_registration_colors()
         except actions.ConfigurationError as e:
             messagebox.showerror('Configuration error', str(e))
+        except panel_cfg.RegistrationWarning as e:
+            messagebox.showwarning('Review "panel.cfg"!', str(e))
         
         self.set_children_state(self.actions_frame, tk.NORMAL)
     
