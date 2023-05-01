@@ -149,7 +149,10 @@ class Project(object):
     # Which folders to use at the package
     @property
     def include_model(self)->bool:
-        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['model'] == 'True' else False
+        try:
+            return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['model'] == 'True' else False
+        except KeyError:
+            return False
     
     @include_model.setter
     def include_model(self, value:bool):
@@ -157,7 +160,10 @@ class Project(object):
     
     @property
     def include_panel(self)->bool:
-        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] == 'True' else False
+        try:
+            return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['panel'] == 'True' else False
+        except KeyError:
+            return False
     
     @include_panel.setter
     def include_panel(self, value:bool):
@@ -165,7 +171,10 @@ class Project(object):
     
     @property
     def include_sound(self)->bool:
-        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['sound'] == 'True' else False
+        try:
+            return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['sound'] == 'True' else False
+        except KeyError:
+            return False
     
     @include_sound.setter
     def include_sound(self, value:bool):
@@ -173,7 +182,10 @@ class Project(object):
     
     @property
     def include_texture(self)->bool:
-        return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['texture'] == 'True' else False
+        try:
+            return True if __class__._parsers[self.file.as_posix()]['AIRCRAFT']['texture'] == 'True' else False
+        except KeyError:
+            return True
     
     @include_texture.setter
     def include_texture(self, value:bool):
