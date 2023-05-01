@@ -13,7 +13,7 @@ from . import styles, helpers, settings, actions, about
 import __main__
 
 class MainWindow(object):
-    project:Project
+    project:Project = None
     app_settings:AppSettings
     
     # Main window
@@ -104,7 +104,7 @@ class MainWindow(object):
         # Main window
         self.win = tk.Tk()
         styles.init(self.win)
-        self.win.title('MSFS Livery Tools')
+        self.set_title()
         self.win.iconbitmap(Path(__main__.RESOURCES_DIR, 'msfs livery tools.ico'))
         
         # Menu
@@ -305,6 +305,12 @@ class MainWindow(object):
     
     # Interface methods
     
+    def set_title(self):
+        if self.project is None:
+            self.win.title('MSFS Livery Tools')
+        else:
+            self.win.title(f'MSFS Livery Tools - {Path(self.project.file).parent.name}')
+    
     def set_children_state(self, parent, state:str=tk.NORMAL):
         for key, child in parent.children.items():
             if hasattr(child, 'state'):
@@ -330,6 +336,7 @@ class MainWindow(object):
         self.set_children_state(self.win)
         self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
+        self.set_title()
     
     def open_project(self, path:str|None=None):
         if not path:
@@ -351,6 +358,7 @@ class MainWindow(object):
         self.app_settings.save()
         self.recent_menu = self.build_recent_menu()
         self.file_menu.entryconfigure(4, menu=self.recent_menu)
+        self.set_title()
     
     def populate(self, parent):
         for key, child in parent.children.items():
