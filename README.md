@@ -1,4 +1,5 @@
 [![Header image](resources/header.jpg)](https://github.com/leandroarndt/msfs_livery_tools)
+
 # MSFS Livery Tools
 
 MSFS Livery Tools is a windows application to help creating livery for existing aircrafts
@@ -15,7 +16,7 @@ so that you can focus on your creative work:
   * external registration font color and stroke.
 * Creating descriptive JSON files for DDS textures (.DDS.json).
 * Creating flag file for textures (.FLAGS) – not on the graphical user interface.
-* Creating and updating package layout files ("layout.json".
+* Creating and updating package layout files ("layout.json").
 * Managing thumbnails (resizing and adding a placeholder).
 
 ## Instalation and usage
@@ -34,3 +35,9 @@ in order to extract and compress texture files.
 * Fine texture flags and descriptors control on graphical user interface.
 * glTF converter to remove MSFT extension, so that already built aircrafts can be
 opened with [Asobo's Blender plugin](https://github.com/AsoboStudio/glTF-Blender-IO-MSFS) (although modifying the original plugin seems more promising).
+
+## Support MSFS Livery Tools
+
+This application has been created in order to facilitate the customization of liveries for [the
+author's YouTube channel](https://youtube.com/@fswt). Please consider subscribing, watching and
+liking the videos there!

@@ -13,7 +13,10 @@ def data_files(folder:str, patterns:list[str])->tuple:
 
 py2exe.freeze(
       windows=[{'script':'livery_tools.py', 'icon_resources': [(0, 'resources/msfs livery tools.ico')]}],
-      data_files=[data_files('resources', ['*.png', '*.ico']), data_files('.', ['LICENSE'])],
+      data_files=[
+            data_files('resources', ['*.png', '*.ico', 'thumbnail.jpg']),
+            data_files('.', ['LICENSE', 'README.md', 'CHANGELOG.md'])
+      ],
       options={
             'packages': ['msfs_livery_tools',
                          'msfs_livery_tools.compression',

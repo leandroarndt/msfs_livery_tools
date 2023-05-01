@@ -1,5 +1,14 @@
 # MSFS Livery Tools changelog
 
+## v1.0
+
+* Thumbnail management implemented, including resizing and adding placeholder image (only works on graphical user interface).
+* Added "display name" property: this is the livery name displayed at the "select livery" window on the
+simulator.
+* "Update layout.json" button available on start up.
+* User can now add a registration color section to `panel.cfg` even without such section on the
+original file, but is warned to review it.
+
 ## v0.4
 
 * Corrected a `layout.json` generator bug, which prevented correct texture loading by the simulator.
