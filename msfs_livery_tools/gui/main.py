@@ -337,6 +337,9 @@ class MainWindow(object):
         self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
         self.set_title()
+        
+        # Reset entries
+        self.populate(self.project_notebook)
     
     def open_project(self, path:str|None=None):
         if not path:
@@ -350,7 +353,7 @@ class MainWindow(object):
                 else:
                     return
         self.project = Project(path)
-        self.populate(self.win)
+        self.populate(self.project_notebook)
         self.set_children_state(self.win)
         self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
@@ -361,7 +364,7 @@ class MainWindow(object):
         self.set_title()
     
     def populate(self, parent):
-        for key, child in parent.children.items():
+        for child in parent.children.values():
             if hasattr(child, 'load'):
                 child.load()
             if hasattr(child, 'children'):

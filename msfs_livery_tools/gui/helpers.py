@@ -37,9 +37,9 @@ class ProjectMixin(object):
     def load(self):
         try:
             value = getattr(self.app.project, self.property)
+            self.set(value, loading=True)
         except KeyError: # Not set on livery.ini:
-            return
-        self.set(value, loading=True)
+            self.value.set(self.default)
     
     def set(self, value, loading=False):
         self.value.set(value)
@@ -61,11 +61,13 @@ class ProjectMixin(object):
 
 class CheckButton(ProjectMixin, ttk.Checkbutton):
     value:tk.BooleanVar
+    default = False
     
     def __init__(self, master, app:object=None, property:str=None, command:Callable=None, default:bool|None=None, *args, **kwargs):
         if default is None:
             self.value = tk.BooleanVar(master)
         else:
+            self.default = default
             self.value = tk.BooleanVar(master, default)
         super().__init__(master=master, app=app, property=property, command=command, variable=self.value, *args, **kwargs)
         self.bind('<FocusOut>', self.update_event) # <Button-1> and <space> trigger before value update.
@@ -80,6 +82,7 @@ class PathChooser(ProjectMixin, ttk.Frame):
     dialog:Callable|None
     extension:tuple[str]|None
     dialog_title:str|None
+    default = NOT_SET
     
     FILE = filedialog.askopenfilename
     DIR = filedialog.askdirectory
@@ -100,6 +103,10 @@ class PathChooser(ProjectMixin, ttk.Frame):
     
     def __str__(self):
         return f'{self.title}: "{PurePath(self.value.get())}"'
+    
+    def load(self):
+        super().load()
+        self.label_var.set(str(self))
     
     def get(self):
         return self.value
@@ -134,6 +141,7 @@ class LabelEntry(ProjectMixin, ttk.Frame):
     property:str
     project:object
     command:Callable
+    default = ''
     
     def __init__(self, master, label_text:str, value='', state=tk.DISABLED,
                  app=None, property:str=None, command:Callable=None, *args, **kwargs):
