@@ -362,16 +362,20 @@ class MainWindow(object):
     def save_project(self):
         self.project.save()
     
+    def create_opener(self, file):
+        return lambda: self.open_project(file)
+    
     def build_recent_menu(self)->tk.Menu:
         menu = tk.Menu(self.file_menu)
         recent = self.app_settings.recent_files
         if len(recent) == 0:
             menu.add_command(label='(Empty)', state=tk.DISABLED)
+            return menu
         n = 0
-        for file in self.app_settings.recent_files:
+        for file in recent:
             n += 1
             menu.add_command(label=f'{n} {PureWindowsPath(file)}', underline=0,
-                            command=lambda: self.open_project(file))
+                            command=self.create_opener(file))
         return menu
     
     def settings(self):
