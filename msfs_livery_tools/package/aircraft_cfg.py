@@ -13,9 +13,12 @@ def from_original(file_name:str, base_container:str, variation_name, suffix:str,
     original = configparser.ConfigParser()
     original.read(file_name)
     
+    new_cfg = configparser.ConfigParser()
+    
     # Defines the original aircraft virtual file system dir
     variation_section = get_section('VARIATION', original)
     variation_section['base_container'] = base_container
+    new_cfg['VARIATION'] = variation_section
     
     # Updates FLTSIM.
     fltsim = get_section('FLTSIM.0', original)
@@ -29,9 +32,10 @@ def from_original(file_name:str, base_container:str, variation_name, suffix:str,
         fltsim['atc_id'] = f'"{tail_number}"'
     if creator:
         fltsim['ui_createdby'] = f'"{creator}"'
+    new_cfg['FLTSIM.0'] = fltsim
     
     cfg = io.StringIO()
-    original.write(cfg)
+    new_cfg.write(cfg)
     
     return cfg.getvalue()
 
