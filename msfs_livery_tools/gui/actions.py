@@ -185,6 +185,20 @@ class Agent(object):
                 raise KeyError
         except KeyError:
             pass
+        try:
+            if self.project.creator:
+                kwargs['creator'] = self.project.creator
+            else:
+                raise KeyError
+        except KeyError:
+            pass
+        try:
+            if self.project.display_name:
+                kwargs['ui_variation'] = self.project.display_name
+            else:
+                raise KeyError
+        except KeyError:
+            pass
         
         if path is None:
             try:

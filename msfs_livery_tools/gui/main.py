@@ -52,6 +52,7 @@ class MainWindow(object):
     join_model_check_button:helpers.CheckButton
     origin_entry:helpers.PathChooser
     title_entry:helpers.LabelEntry
+    display_name_entry:helpers.LabelEntry
     airplane_folder_entry:helpers.LabelEntry
     manufacturer_entry:helpers.LabelEntry
     creator_entry:helpers.LabelEntry
@@ -185,8 +186,12 @@ class MainWindow(object):
                                                     button_text='Choose…', button_command=self.choose_origin,
                                                     property='origin')
         self.origin_entry.pack(side=tk.TOP, fill=tk.BOTH)
-        self.title_entry = helpers.LabelEntry(self.manifest_frame, label_text='Title: ', app=self, property='title')
+        self.title_entry = helpers.LabelEntry(self.manifest_frame, label_text='Title: ',
+                                                app=self, property='title')
         self.title_entry.pack(side=tk.TOP, fill=tk.BOTH)
+        self.display_name_entry = helpers.LabelEntry(self.manifest_frame, label_text='Display name: ',
+                                                    app=self, property='display_name')
+        self.display_name_entry.pack(side=tk.TOP, fill=tk.BOTH)
         self.airplane_folder_entry = helpers.LabelEntry(self.manifest_frame, label_text='Airplane folder: ',
                                                         app=self, property='airplane_folder')
         self.airplane_folder_entry.pack(side=tk.TOP, fill=tk.BOTH)

@@ -15,6 +15,7 @@ class Project(object):
             'origin': ('PROJECT', 'origin'),
             'base_container': ('AIRCRAFT', 'base_container'),
             'title': ('PROJECT', 'title'),
+            'display_name': ('PROJECT', 'display_name'),
             'airplane_folder': ('PROJECT', 'airplane_folder'),
             'manufacturer': ('PROJECT', 'manufacturer'),
             'creator': ('PROJECT', 'creator'),
@@ -88,6 +89,14 @@ class Project(object):
     @title.setter
     def title(self, value:str):
         __class__._parsers[self.file.as_posix()]['PROJECT']['title'] = value
+
+    @property
+    def display_name(self)->str:
+        return __class__._parsers[self.file.as_posix()]['PROJECT']['display_name']
+    
+    @display_name.setter
+    def display_name(self, value:str):
+        __class__._parsers[self.file.as_posix()]['PROJECT']['display_name'] = value
     
     @property
     def airplane_folder(self)->str:
