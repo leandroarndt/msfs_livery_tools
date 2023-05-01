@@ -203,7 +203,7 @@ class MainWindow(object):
         self.aircraft_frame = ttk.Frame(self.project_notebook)
         self.project_notebook.add(self.aircraft_frame, text='Aircraft')
         self.base_container_frame = helpers.PathChooser(self.aircraft_frame, app=self, title='Base container',
-                                                        button_command=self.choose_origin, button_text='Choose…',
+                                                        button_command=self.choose_base_container, button_text='Choose…',
                                                         property='base_container')
         self.base_container_frame.pack(side=tk.TOP, fill=tk.BOTH)
         self.suffix_entry = helpers.LabelEntry(self.aircraft_frame, label_text='Folder suffix: ',
@@ -391,6 +391,14 @@ class MainWindow(object):
             self.origin_entry.load()
             self.base_container_frame.load()
     
+    def choose_base_container(self):
+        folder = filedialog.askdirectory(mustexist=True)
+        if Path(folder).is_dir():
+            self.base_container_frame.value.set(folder)
+            self.base_container_frame.update_project()
+            self.base_container_frame.load()
+            self.origin_entry.load()
+    
     # Action methods
     def wait_agent(self):
         if self.agent.running:
@@ -527,7 +535,7 @@ class MainWindow(object):
         self.set_children_state(self.actions_frame, tk.DISABLED)
         self.win.update()
         
-        path = filedialog.askdirectory(mustexist=True, title='Choose package folder')
+        path = filedialog.askdirectory(mustexist=False, title='Choose package folder')
         if not path:
             self.set_children_state(self.actions_frame, tk.NORMAL)
             return
