@@ -82,6 +82,9 @@ class MainWindow(object):
     dds_json_button:ttk.Button
     texture_flags_button:ttk.Button
     texture_cfg_button:ttk.Button
+    thumbnail_separator:styles.Separator
+    thumbnail_placeholder_button:ttk.Button
+    thumbnail_resize_button:ttk.Button
     aircraft_actions_separator:styles.Separator
     write_aircraft_button:ttk.Button
     panel_actions_separator:styles.Separator
@@ -260,6 +263,17 @@ class MainWindow(object):
         # self.texture_flags_button = ttk.Button(self.actions_frame, text='Create texture flags',
         #                                         command=self.create_flags, state=tk.DISABLED)
         # self.texture_flags_button.pack(fill=tk.X)
+        # Thumbnails section
+        self.thumbnail_separator = styles.Separator(self.actions_frame, orient=tk.HORIZONTAL)
+        self.thumbnail_separator.pack(fill=tk.X)
+        self.thumbnail_placeholder_button = ttk.Button(self.actions_frame, text='Add placeholder thumbnail',
+                                                    command=lambda: self.agent.copy_thumbnail_placeholder(),
+                                                    state=tk.DISABLED)
+        self.thumbnail_placeholder_button.pack(fill=tk.X)
+        self.thumbnail_resize_button = ttk.Button(self.actions_frame, text='Resize thumbnail',
+                                                    command=lambda: self.agent.resize_thumbnail(),
+                                                    state=tk.DISABLED)
+        self.thumbnail_resize_button.pack(fill=tk.X)
         # Aircraft section
         self.aircraft_actions_separator = styles.Separator(self.actions_frame, orient=tk.HORIZONTAL)
         self.aircraft_actions_separator.pack(fill=tk.X)
@@ -292,7 +306,7 @@ class MainWindow(object):
                                                 style=styles.BOLD_BUTTON)
         self.pack_livery_button.pack(fill=tk.X)
         self.update_layout_button = ttk.Button(self.actions_frame, text='Update layout.json',
-                                                    command=self.update_layout, state=tk.DISABLED)
+                                                    command=self.update_layout, state=tk.NORMAL)
         self.update_layout_button.pack(fill=tk.X)
         
         # Progress bar

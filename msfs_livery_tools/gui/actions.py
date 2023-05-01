@@ -6,7 +6,7 @@ from threading import Thread
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.compression import dds
-from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout, panel_cfg
+from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout, panel_cfg, thumbnail
 from .helpers import NOT_SET
 
 class ConfigurationError(Exception):
@@ -139,6 +139,12 @@ class Agent(object):
         file_name = self._texture_dir() / 'texture.cfg'
         with file_name.open('w') as f:
             cfg.write(f)
+    
+    def copy_thumbnail_placeholder(self):
+        thumbnail.placeholder(self._texture_dir())
+    
+    def resize_thumbnail(self):
+        thumbnail.resize_thumbnail(self._texture_dir() / 'thumbnail.jpg')
     
     def create_aircraft_cfg(self, path:str|None=None):
         kwargs = {}
@@ -330,7 +336,14 @@ class Agent(object):
                 (len(list(texture_source.glob('*.dds'))) == 0 and len(list(texture_source.glob('*.png'))) > 0):
                 self.compress_textures()
                 self.create_dds_descriptors()
-            for pattern in ('texture.cfg', '*.dds', '*.dds.json', '*.dds.flags'):
+            for pattern in (
+                'texture.cfg',
+                '*.dds',
+                '*.dds.json',
+                '*.dds.flags',
+                'thumbnail.jpg',
+                'thumbnail-small.jpg'
+            ):
                 for file in texture_source.glob(pattern):
                     self._copy(file, texture_dest)
         
