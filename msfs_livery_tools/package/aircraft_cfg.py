@@ -4,9 +4,9 @@ import io
 from pathlib import Path
 from .cfg_tools import get_section
 
-def from_original(file_name:str, base_container:str, variation_name, suffix:str, model:bool=False,
-                    panel:bool=False, sound:bool=False, texture:bool=True,
-                    tail_number:str='ASGX'):
+def from_original(file_name:str, base_container:str, variation_name, suffix:str,
+                    model:bool=False, panel:bool=False, sound:bool=False, texture:bool=True,
+                    tail_number:str|None = None, creator:str|None=None):
     """Returns aircraft.cfg based on original and parameters."""
     
     # Reads the original aircraft.cfg
@@ -24,7 +24,11 @@ def from_original(file_name:str, base_container:str, variation_name, suffix:str,
     fltsim['panel'] = f'"{suffix if panel else ""}"'
     fltsim['sound'] = f'"{suffix if sound else ""}"'
     fltsim['texture'] = f'"{suffix if texture else ""}"'
-    fltsim['atc_id'] = f'"{tail_number}"'
+    fltsim['ui_variation'] = f'"{variation_name}"'
+    if tail_number:
+        fltsim['atc_id'] = f'"{tail_number}"'
+    if creator:
+        fltsim['ui_createdby'] = f'"{creator}"'
     
     cfg = io.StringIO()
     original.write(cfg)
