@@ -338,6 +338,12 @@ class MainWindow(object):
         self.agent.project = self.project
         self.set_title()
         
+        # Rebuild recent files menu
+        self.app_settings.recent_files = path
+        self.app_settings.save()
+        self.recent_menu = self.build_recent_menu()
+        self.file_menu.entryconfigure(4, menu=self.recent_menu)
+        
         # Reset entries
         self.populate(self.project_notebook)
     
@@ -357,6 +363,8 @@ class MainWindow(object):
         self.set_children_state(self.win)
         self.file_menu.entryconfigure(3, state=tk.NORMAL)
         self.agent.project = self.project
+        
+        # Rebuild recent files menu
         self.app_settings.recent_files = path
         self.app_settings.save()
         self.recent_menu = self.build_recent_menu()
