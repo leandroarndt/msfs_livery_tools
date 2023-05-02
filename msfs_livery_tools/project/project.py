@@ -250,7 +250,7 @@ class Project(object):
         # Return string:
         return __class__._parsers[self.file.as_posix()]['TEXTURES'][key]
     
-    def __init__(self, project_path:str, join_model_and_textures=True):
+    def __init__(self, project_path:str, join_model_and_textures=False):
         """Project handler with tools to create its structure.
 
         Args:

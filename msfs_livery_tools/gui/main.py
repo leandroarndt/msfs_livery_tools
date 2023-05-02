@@ -181,7 +181,7 @@ class MainWindow(object):
         self.join_model_check_button = helpers.CheckButton(self.manifest_frame, app=self,
                                                             property='join_model_and_textures',
                                                             text='Join model and textures',
-                                                            default=True)
+                                                            default=False)
         self.join_model_check_button.pack(side=tk.TOP, fill=tk.X)
         self.origin_entry = helpers.PathChooser(master=self.manifest_frame, app=self, title='Origin',
                                                     button_text='Choose…', button_command=self.choose_origin,
