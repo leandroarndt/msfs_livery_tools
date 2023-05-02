@@ -142,6 +142,7 @@ class Agent(object):
     
     def copy_thumbnail_placeholder(self):
         thumbnail.placeholder(self._texture_dir())
+        thumbnail.resize_thumbnail(self._texture_dir() / 'thumbnail.jpg')
     
     def resize_thumbnail(self):
         thumbnail.resize_thumbnail(self._texture_dir() / 'thumbnail.jpg')
