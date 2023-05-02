@@ -1,5 +1,12 @@
 # MSFS Livery Tools changelog
 
+## v1.2
+
+* Converts `thumbnail.png` (from MSFS developer mode aircraft capture tool) into JPEG before resizing
+the thumbnail.
+* Adding a placeholder thumbnail adds it's "small" version too.
+* Don't join model and textures by default anymore.
+
 ## v1.1
 
 * Fixed a bug which prevented some composite textures loading in the simulator.
