@@ -21,7 +21,7 @@ class Uses(Enum):
     Emissive = Name_Flags_Alpha(['_LIT', '_EMIT'], alpha=True)
     Normal_Map = Name_Flags_Alpha(['_NORM', '_NRM', '_NORMAL'],
                             ['FL_BITMAP_TANGENT_DXT5N', 'FL_BITMAP_NO_GAMMA_CORRECTION'])
-    Composite = Name_Flags_Alpha(['_COMP', '_PBR'], ['FL_BITMAP_METAL_ROUGH_AO_DATA'])
+    Composite = Name_Flags_Alpha(['_COMP', '_PBR'], ['FL_BITMAP_NO_GAMMA_CORRECTION','FL_BITMAP_METAL_ROUGH_AO_DATA'])
 
 def create_description(dds_file:str, use=Uses.Unknown, alpha=None):
     """Creates a JSON description of dds_file as "dds_file.json".
