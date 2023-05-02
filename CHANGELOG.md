@@ -1,5 +1,10 @@
 # MSFS Livery Tools changelog
 
+## v1.1
+
+* Fixed a bug which prevented some composite textures loading in the simulator.
+* `manifest.json` now has the calculated package size.
+
 ## v1.0
 
 * Thumbnail management implemented, including resizing and adding placeholder image (only works on graphical user interface).
