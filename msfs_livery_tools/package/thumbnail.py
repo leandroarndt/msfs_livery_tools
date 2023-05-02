@@ -8,8 +8,15 @@ def placeholder(path:str|Path):
     shutil.copy(__main__.RESOURCES_DIR / 'thumbnail.jpg', path)
 
 def resize_thumbnail(path:str|Path):
+    path = Path(path)
     size = (600, 216)
-    thumbnail = Image.open(path)
+    if Path(path.parent, f'{path.stem}.png').exists(): # Converts in-game capture
+        path = Path(path.parent, f'{path.stem}.png')
+        thumbnail = Image.open(path)
+        thumbnail.save(Path(path.parent, f'{path.stem}.jpg'))
+        path.unlink() # Prevents converting to DDS
+    else:
+        thumbnail = Image.open(path)
     ratio = max(size[0] / thumbnail.size[0], size[1] / thumbnail.size[1])
     gap = {
         'xmin': int(((thumbnail.size[0] * ratio - size[0]) / 2) / ratio),
