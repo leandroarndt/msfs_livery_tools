@@ -24,9 +24,14 @@ def create_manifest(file_name:str, title:str, manufacturer:str, creator:str, ver
     file.close()
 
 def from_original(original_file:str, destination_file:str, **kwargs):
-    original = Path(original_file).open(encoding='utf8')
-    manifest = json.load(original)
-    original.close()
+    with Path(original_file).open(encoding='utf8') as original:
+        manifest = json.load(original)
+    manifest['total_package_size'] = 0
+    for file in Path(destination_file).parent.glob('**/*'):
+        if file.is_file():
+            if not (file.name.lower() == 'layout.json' or file.name.lower() == 'manifest.json'):
+                manifest['total_package_size'] += Path(file).stat().st_size
+    manifest['total_package_size'] = f'{manifest["total_package_size"]:020d}'
     manifest.update(kwargs)
     destination = Path(destination_file).open('w', encoding='utf8')
     json.dump(manifest, destination, indent=4)
