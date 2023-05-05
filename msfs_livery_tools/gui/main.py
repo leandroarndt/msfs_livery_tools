@@ -193,7 +193,7 @@ class MainWindow(object):
         self.display_name_entry = helpers.LabelEntry(self.manifest_frame, label_text='Display name: ',
                                                     app=self, property='display_name')
         self.display_name_entry.pack(side=tk.TOP, fill=tk.BOTH)
-        self.airplane_folder_entry = helpers.LabelEntry(self.manifest_frame, label_text='Airplane folder: ',
+        self.airplane_folder_entry = helpers.LabelEntry(self.manifest_frame, label_text='Airplane folder (unique): ',
                                                         app=self, property='airplane_folder')
         self.airplane_folder_entry.pack(side=tk.TOP, fill=tk.BOTH)
         self.manufacturer_entry = helpers.LabelEntry(self.manifest_frame, label_text='Manufacturer: ',
