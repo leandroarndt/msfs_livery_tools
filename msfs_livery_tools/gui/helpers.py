@@ -50,7 +50,12 @@ class ProjectMixin(object):
         if not self.command:
             # Clears property from config file
             try:
-                if self.value.get() != getattr(self.app.project, self.property):
+                try:
+                    if self.value.get() != getattr(self.app.project, self.property):
+                        self.app.project_modified = True
+                        self.app.save_project_button.config(state=tk.NORMAL)
+                        self.app.file_menu.entryconfigure(3, state=tk.NORMAL)
+                except KeyError: # Not set yet, thus modified
                     self.app.project_modified = True
                     self.app.save_project_button.config(state=tk.NORMAL)
                     self.app.file_menu.entryconfigure(3, state=tk.NORMAL)

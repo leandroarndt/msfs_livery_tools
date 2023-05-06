@@ -349,14 +349,28 @@ class MainWindow(object):
         path = filedialog.askdirectory(mustexist=False, title='Select project folder')
         if not path:
             return
+        
+        if self.project_modified:
+            answer = messagebox.askyesnocancel('New project', 'Save current project before creating another one?')
+            if answer:
+                self.save_project()
+            elif answer is None:
+                return
+        
         if Path(path, 'livery.ini').exists():
             if messagebox.askokcancel('Project exists!',
                 f'Project "{Path(path, "livery.ini")}" already exists! Erase it?'):
                 shutil.rmtree(path)
             else:
                 return
+        
+        try:
+            self.project.close() # Deletes the old project's dicionary entry at Project class
+        except AttributeError: # There is no open project
+            pass
         self.project = Project(path, self.join_model_check_button.value.get())
         self.set_children_state(self.win)
+        self.project_modified = False
         self.save_project_button.config(state=tk.DISABLED)
         self.file_menu.entryconfigure(3, state=tk.DISABLED)
         self.agent.project = self.project
@@ -382,10 +396,24 @@ class MainWindow(object):
                     self.open_project()
                 else:
                     return
+        
+        if self.project_modified:
+            answer = messagebox.askyesnocancel('Open project', 'Save current project before opening another one?')
+            if answer:
+                self.save_project()
+            elif answer is None:
+                return
+        
+        try:
+            self.project.close() # Deletes the old project's dicionary entry at Project class
+        except AttributeError: # There is no open project
+            pass
         self.project = Project(path)
         self.populate(self.project_notebook)
         self.set_children_state(self.win)
+        self.project_modified = False
         self.save_project_button.config(state=tk.DISABLED)
+        self.file_menu.entryconfigure(3, state=tk.DISABLED)
         self.agent.project = self.project
         
         # Rebuild recent files menu
@@ -404,7 +432,9 @@ class MainWindow(object):
     
     def save_project(self):
         self.project.save()
+        self.project_modified = False
         self.save_project_button.config(state=tk.DISABLED)
+        self.file_menu.entryconfigure(3, state=tk.DISABLED)
     
     def create_opener(self, file):
         return lambda: self.open_project(file)

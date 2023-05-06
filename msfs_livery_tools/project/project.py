@@ -279,6 +279,9 @@ class Project(object):
         with open(self.file, 'w') as f:
             __class__._parsers[self.file.as_posix()].write(f)
     
+    def close(self):
+        del __class__._parsers[self.file.as_posix()]
+    
     def create_structure(self):
         Path(self.file.parent, 'panel').mkdir(exist_ok=True)
         Path(self.file.parent, 'sound').mkdir(exist_ok=True)
