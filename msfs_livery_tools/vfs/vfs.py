@@ -74,17 +74,33 @@ class VFSFolder(_VFSObject, _VFSContainer):
             except KeyError:
                 pass
     
-    def find(file_name:str, paths:list[str])->Path:
-        """Finds a file "file_name" in "paths" and returns the corresponding real file system path.
+    def find(self, file_name:str, fallbacks:list[str])->Path:
+        """Finds a file "file_name" in this folder and in "fallbacks" and returns the corresponding VFSFile.
 
         Args:
             file_name (str): file name to search for
-            paths (list[str]): list of VFS folders to search relative to VFSFolder object.
+            fallbacks (list[str]): list of VFS folders to search relative to VFSFolder object.
 
         Returns:
-            Path: real file system path for "file_name" in "paths".
+            Path: real file system path for "file_name" in "fallbacks".
         """
-        pass
+        if file_name.lower() in self.contents:
+            return self.contents[file_name.lower()]
+        for fallback in fallbacks:
+            try:
+                fallback = Path(fallback)
+                parts = fallback.parts
+                folder = self
+                for part in parts:
+                    if part == '..':
+                        folder = folder.parent
+                    else:
+                        folder = folder.contents[part.lower()]
+                if file_name.lower() in folder.contents:
+                    return folder.contents[file_name.lower()]
+            except KeyError:
+                pass
+        raise FileNotFoundError
 
 class VFSFile(_VFSObject):
     file:Path
@@ -93,8 +109,11 @@ class VFSFile(_VFSObject):
         self.file = Path(file)
         super().__init__(name=self.file.name, parent=parent, base_path=base_path, *args, **kwargs)
     
+    def real_path(self):
+        return (self.base_path / self.file)
+    
     def open(self, mode:str, *args, **kwargs):
-        return (self.base_path / self.file).open(mode, *args, **kwargs)
+        return self.real_path().open(mode, *args, **kwargs)
 
 class VFS(_VFSContainer, object):
     contents:dict = {}
@@ -102,13 +121,13 @@ class VFS(_VFSContainer, object):
     _instance = None
     
     @classmethod
-    def new(cls, package_folder:str|Path, include_all:bool=False):
+    def new(cls, package_folder:str|Path, include_extra=[], include_all:bool=False):
         
         if cls._instance is None:
             cls._instance = cls()
             cls._instance.package_folder = Path(package_folder)
             cls._instance.contents = {}
-            cls._instance.scan(include_all)
+            cls._instance.scan(include_extra, include_all)
         
         return cls._instance
     
@@ -121,11 +140,13 @@ class VFS(_VFSContainer, object):
     def _ne__(self, other):
         return self.package_folder != other.package_folder
     
-    def scan(self, include_all:bool=False):
+    def scan(self, include_extra=[], include_all:bool=False):
         if include_all:
             packages = list(self.package_folder.glob('**/layout.json'))
         else:
             packages = list((self.package_folder / 'Official').glob('**/layout.json')) + list((self.package_folder / 'Community').glob('**/layout.json'))
+        for extra in include_extra:
+            packages += list(Path(extra).glob('**/layout.json'))
         for package in packages:
             print(f'Adding {package.parent.name} into VFS root.')
             VFSFolder.scan_layout(package, self)
