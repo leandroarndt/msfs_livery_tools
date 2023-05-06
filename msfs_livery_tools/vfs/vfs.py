@@ -14,8 +14,16 @@ class _VFSObject(object):
         self.parent.contents[self.name] = self
         self.base_path = base_path
 
-class VFSFolder(_VFSObject):
+class _VFSContainer:
     contents:dict = {}
+    
+    def __contains__(self, name:str):
+        return name.lower() in self.contents
+    
+    def __getitem__(self, key):
+        return self.contents[key]
+
+class VFSFolder(_VFSObject, _VFSContainer):
     
     def __hash__(self):
         return id(self)
@@ -28,9 +36,6 @@ class VFSFolder(_VFSObject):
     
     def __ne__(self, other):
         return self.folder != other.folder
-    
-    def __contains__(self, name:str):
-        return name.lower() in self.contents
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -91,7 +96,7 @@ class VFSFile(_VFSObject):
     def open(self, mode:str, *args, **kwargs):
         return (self.base_path / self.file).open(mode, *args, **kwargs)
 
-class VFS(object):
+class VFS(_VFSContainer, object):
     contents:dict = {}
     package_folder:Path
     _instance = None
@@ -115,9 +120,6 @@ class VFS(object):
     
     def _ne__(self, other):
         return self.package_folder != other.package_folder
-    
-    def __contains__(self, name:str):
-        return name.lower() in self.contents
     
     def scan(self, include_all:bool=False):
         if include_all:
