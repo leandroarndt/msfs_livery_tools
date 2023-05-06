@@ -7,7 +7,7 @@ class _VFSObject(object):
     
     def __init__(self, name:str, parent, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = name
+        self.name = name.lower()
         self.parent = parent
         self.parent.contents.add(self)
 
