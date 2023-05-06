@@ -93,13 +93,20 @@ class Agent(object):
         thread.start()
         self.monitor(thread)
     
-    def compress_textures(self):
+    def compress_textures(self, only_new:bool=False):
         texture_dir = self._texture_dir()
         textures = list(texture_dir.glob('*.png'))
         self.prepare_progress_bar(len(textures))
         for file in textures:
             self.progress_bar['value'] += 1
             self.progress_bar.update()
+            if only_new:
+                try:
+                    if file.stat().st_mtime < (file.parent / f'{file.stem}.dds').stat().st_mtime:
+                        print(f'"{file.stem}.dds" is newer than "{file.name}". Skipping.')
+                        continue
+                except FileNotFoundError:
+                    pass
             print(f'Compressing "{file}"…')
             dds.convert(file, texture_dir, self.settings.texconv_path)
         self.restore_progress_bar()
@@ -349,7 +356,7 @@ class Agent(object):
                 self._copy(texture_source / 'texture.cfg', texture_dest)
             if self.settings.compress_textures_on_build or \
                 (len(list(texture_source.glob('*.dds'))) == 0 and len(list(texture_source.glob('*.png'))) > 0):
-                self.compress_textures()
+                self.compress_textures(only_new=True)
                 self.create_dds_descriptors()
             for pattern in (
                 'texture.cfg',

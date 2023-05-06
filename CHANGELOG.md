@@ -1,5 +1,9 @@
 # MSFS Livery Tools changelog
 
+* Skips unmodified textures compression during package build.
+* Resizes thumbnail for both small and full-size formats.
+* Added alert for uniqueness of airplane folder.
+
 ## v1.2
 
 * Converts `thumbnail.png` (from MSFS developer mode aircraft capture tool) into JPEG before resizing
