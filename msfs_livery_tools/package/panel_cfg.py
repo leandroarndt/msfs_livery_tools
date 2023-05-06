@@ -52,16 +52,16 @@ def set_registration_colors(file_name:str, font:str='black', stroke:str='',
                                         value_contains={'texture': 'registration'},
                                         value_equal={'location': 'exterior'})
         registration['painting00'] = f'Registration/Registration.html?font_color={font}\
-        {"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
-        {stroke}, 0, 0, {registration["size_mm"]}'
+{"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
+{stroke}, 0, 0, {registration["size_mm"]}'
     except ValueError:
         number = get_next_section_number('VPainting', panel)
         panel.add_section(f'VPainting{number:02x}')
         registration = panel[f'VPainting{number:02x}']
-        registration['size_mm'] = '2048, 512' # User should adjust to the project needs
+        registration['size_mm'] = '2048,512' # User should adjust to the project needs
         registration['painting00'] = f'Registration/Registration.html?font_color={font}\
-        {"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
-        {stroke}, 0, 0, {registration["size_mm"]}'
+{"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
+{stroke}, 0, 0, {registration["size_mm"]}'
     file = Path(file_name).open('w', encoding='utf8')
     panel.write(file)
     file.close()
