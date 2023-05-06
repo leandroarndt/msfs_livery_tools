@@ -52,9 +52,10 @@ class Agent(object):
             dest.mkdir()
         if source.is_file():
             if Path(dest, source.name).exists() and overwrite:
-                    Path(dest, source.name).unlink()
+                Path(dest, source.name).unlink()
             shutil.copy(source, dest)
         for file in source.glob(pattern):
+            print(f'Copying "{file}" to "{dest / file.name}"…')
             if file.is_file():
                 if Path(dest, file.name).exists() and overwrite:
                     Path(dest, file.name).unlink()
