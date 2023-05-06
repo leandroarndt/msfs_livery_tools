@@ -41,7 +41,7 @@ class ProjectMixin(object):
         except KeyError: # Not set on livery.ini:
             self.value.set(self.default)
     
-    def set(self, value, loading=False):
+    def set(self, value, loading=False)->bool:
         self.value.set(value)
         if not loading:
             self.update_project()
@@ -50,6 +50,10 @@ class ProjectMixin(object):
         if not self.command:
             # Clears property from config file
             try:
+                if self.value.get() != getattr(self.app.project, self.property):
+                    self.app.project_modified = True
+                    self.app.save_project_button.config(state=tk.NORMAL)
+                    self.app.file_menu.entryconfigure(3, state=tk.NORMAL)
                 if self.value.get() == '':
                     delattr(self.app.project, self.property)
                 else:
@@ -57,6 +61,9 @@ class ProjectMixin(object):
             except AttributeError:
                 pass # Not set
         else:
+            self.app.project_modified = True
+            self.app.save_project_button.config(state=tk.NORMAL)
+            self.app.file_menu.entryconfigure(3, state=tk.NORMAL)
             self.command()
 
 class CheckButton(ProjectMixin, ttk.Checkbutton):

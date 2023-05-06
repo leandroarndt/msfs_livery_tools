@@ -16,6 +16,7 @@ import __main__
 class MainWindow(object):
     project:Project = None
     app_settings:AppSettings
+    project_modified:bool = False
     
     # Main window
     win:tk.Tk
@@ -105,12 +106,14 @@ class MainWindow(object):
     
     def __init__(self):
         self.app_settings = AppSettings()
+        self.project_modified = False
         
         # Main window
         self.win = tk.Tk()
         styles.init(self.win)
         self.set_title()
         self.win.iconbitmap(Path(__main__.RESOURCES_DIR, 'msfs livery tools.ico'))
+        self.win.protocol('WM_DELETE_WINDOW', self.on_close)
         
         # Menu
         self.menu = tk.Menu(self.win)
@@ -125,8 +128,8 @@ class MainWindow(object):
         self.recent_menu = self.build_recent_menu()
         self.file_menu.add_cascade(label='Open recent', underline=5, menu=self.recent_menu)
         self.file_menu.add_separator()
-        self.file_menu.add_command(label='Quit', command=self.win.destroy, accelerator='Ctrl+Q')
-        self.win.bind_all('<Control-q>', lambda event: self.win.destroy())
+        self.file_menu.add_command(label='Quit', command=self.on_close, accelerator='Ctrl+Q')
+        self.win.bind_all('<Control-q>', self.on_close)
         self.menu.add_cascade(label='File', underline=0, menu=self.file_menu)
         self.menu.add_command(label='Settings', command=self.settings, underline=0)
         self.help_menu = tk.Menu(self.menu)
@@ -354,7 +357,8 @@ class MainWindow(object):
                 return
         self.project = Project(path, self.join_model_check_button.value.get())
         self.set_children_state(self.win)
-        self.file_menu.entryconfigure(3, state=tk.NORMAL)
+        self.save_project_button.config(state=tk.DISABLED)
+        self.file_menu.entryconfigure(3, state=tk.DISABLED)
         self.agent.project = self.project
         self.set_title()
         
@@ -381,7 +385,7 @@ class MainWindow(object):
         self.project = Project(path)
         self.populate(self.project_notebook)
         self.set_children_state(self.win)
-        self.file_menu.entryconfigure(3, state=tk.NORMAL)
+        self.save_project_button.config(state=tk.DISABLED)
         self.agent.project = self.project
         
         # Rebuild recent files menu
@@ -400,6 +404,7 @@ class MainWindow(object):
     
     def save_project(self):
         self.project.save()
+        self.save_project_button.config(state=tk.DISABLED)
     
     def create_opener(self, file):
         return lambda: self.open_project(file)
@@ -409,6 +414,7 @@ class MainWindow(object):
         recent = self.app_settings.recent_files
         if len(recent) == 0:
             menu.add_command(label='(Empty)', state=tk.DISABLED)
+            self.file_menu.entryconfigure(3, state=tk.DISABLED)
             return menu
         n = 0
         for file in recent:
@@ -604,3 +610,12 @@ class MainWindow(object):
         self.agent.update_layout(path)
         
         self.set_children_state(self.actions_frame, tk.NORMAL)
+    
+    def on_close(self, event=None):
+        if self.project_modified:
+            answer = messagebox.askyesnocancel('Quit', 'Save project before exit?')
+            if answer:
+                self.save_project()
+            elif answer is None:
+                return
+        self.win.destroy()
