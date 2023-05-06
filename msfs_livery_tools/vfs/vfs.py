@@ -30,7 +30,7 @@ class VFSFolder(_VFSObject):
         return self.folder != other.folder
     
     def __contains__(self, name:str):
-        return name in self.contents
+        return name.lower() in self.contents
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -117,7 +117,7 @@ class VFS(object):
         return self.package_folder != other.package_folder
     
     def __contains__(self, name:str):
-        return name in self.contents
+        return name.lower() in self.contents
     
     def scan(self, include_all:bool=False):
         if include_all:
