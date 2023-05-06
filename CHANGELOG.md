@@ -9,7 +9,7 @@
 * Save button and menu entry now indicate if the project has been modified.
 * Bug correction:
   * Doesn't keep closed projects in memory anymore.
-  * Corrected registration number format.
+  * Corrected registration number configuration.
   * Now overwrites existing configuration files even if they're not present on project dir (not overwriting was a bad design choice).
 
 ## v1.2
