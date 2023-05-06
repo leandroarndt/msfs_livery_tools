@@ -1,8 +1,16 @@
 # MSFS Livery Tools changelog
 
-* Skips unmodified textures compression during package build.
+## v1.3
+
 * Resizes thumbnail for both small and full-size formats.
+* Skips unmodified texture compression during package build (speeds package build).
 * Added alert for uniqueness of airplane folder.
+* Asks before exiting application, opening or creating project if the current project has been modified.
+* Save button and menu entry now indicate if the project has been modified.
+* Bug correction:
+  * Doesn't keep closed projects in memory anymore.
+  * Corrected registration number format.
+  * Now overwrites existing configuration files even if they're not present on project dir (not overwriting was a bad design choice).
 
 ## v1.2
 
