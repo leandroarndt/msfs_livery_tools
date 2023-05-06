@@ -61,6 +61,18 @@ class Agent(object):
                     Path(dest, file.name).unlink()
                 shutil.copy(file, dest)
     
+    def _move(self, source:str|Path, dest:str|Path, pattern='*', overwrite=True):
+        source, dest = Path(source), Path(dest)
+        if not dest.exists():
+            dest.mkdir()
+        if source.is_file():
+            if Path(dest, source.name).exists() and overwrite:
+                Path(dest, source.name).unlink()
+            print(f'Moving temporary "{source}" to "{dest / source.name}"…')
+            shutil.move(source, dest)
+        else:
+            raise ValueError(f'"{source}" is not a file.')
+    
     def monitor(self, thread:Runner):
         if thread.is_alive():
             self.running = True
@@ -320,9 +332,10 @@ class Agent(object):
         
         # aircraft.cfg
         if not Path(self.project.file, 'aircraft.cfg').is_file():
-            if not (airplane_path / 'aircraft.cfg').exists():
-                self.create_aircraft_cfg()
-                shutil.move(Path(self.project.file).parent / 'aircraft.cfg', airplane_path)
+            self.create_aircraft_cfg()
+            if  (airplane_path / 'aircraft.cfg').exists():
+                (airplane_path / 'aircraft.cfg').unlink()
+            self._move(Path(self.project.file).parent / 'aircraft.cfg', airplane_path)
         else:
             self._copy(Path(self.project.file, 'aircraft.cfg'), airplane_path)
         
@@ -350,9 +363,10 @@ class Agent(object):
             texture_dest:Path = Path(airplane_path, f'texture.{suffix}')
             texture_dest.mkdir(exist_ok=True)
             if not Path(texture_source, 'texture.cfg').exists():
-                if not (texture_dest / 'texture.cfg').exists():
-                    self.create_texture_cfg()
-                    shutil.move(Path(texture_source, 'texture.cfg'), texture_dest)
+                self.create_texture_cfg()
+                if (texture_dest / 'texture.cfg').exists():
+                    (texture_dest / 'texture.cfg').unlink()
+                self._move(Path(texture_source, 'texture.cfg'), texture_dest)
             else:
                 self._copy(texture_source / 'texture.cfg', texture_dest)
             if self.settings.compress_textures_on_build or \
@@ -373,9 +387,10 @@ class Agent(object):
         # Create or copy manifest.json
         manifest_file = Path(self.project.file).parent / 'manifest.json'
         if not manifest_file.is_file():
-            if not (path / 'manifest.json').exists():
-                self.create_manifest()
-                shutil.move(manifest_file, path)
+            self.create_manifest()
+            if (path / 'manifest.json').exists():
+                (path / 'manifest.json').unlink()
+            self._move(manifest_file, path)
         else:
             self._copy(manifest_file, path)
         
