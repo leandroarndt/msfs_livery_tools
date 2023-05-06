@@ -59,6 +59,8 @@ def set_registration_colors(file_name:str, font:str='black', stroke:str='',
         panel.add_section(f'VPainting{number:02x}')
         registration = panel[f'VPainting{number:02x}']
         registration['size_mm'] = '2048,512' # User should adjust to the project needs
+        registration['location'] = 'exterior'
+        registration['texture'] = '$RegistrationNumber'
         registration['painting00'] = f'Registration/Registration.html?font_color={font}\
 {"&stroke_size=" + str(stroke_size) if stroke else ""}{"&stroke_color=" if stroke else ""}\
 {stroke}, 0, 0, {registration["size_mm"]}'
