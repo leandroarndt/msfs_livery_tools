@@ -1,4 +1,5 @@
 """Implements a parallel of MSFS package virtual file system."""
+import json
 from pathlib import Path
 
 class _VFSObject(object):
@@ -37,7 +38,7 @@ class VFSFolder(_VFSObject):
         self.contents = set()
     
     @classmethod
-    def new(cls, name, parent, *args, **kwargs):
+    def new(cls, name, parent, layout:Path|None=None, *args, **kwargs):
         if name in parent:
             for content in parent.contents:
                 if content.name == name:
@@ -98,4 +99,10 @@ class VFS(object):
         return False
     
     def scan(self, include_all:bool=False):
-        pass
+        if include_all:
+            packages = list(self.package_folder.glob('**/layout.json'))
+        else:
+            packages = list((self.package_folder / 'Official').glob('**/layout.json')) + list((self.package_folder / 'Community').glob('**/layout.json'))
+        for package in packages:
+            print(f'Adding {package.parent.name} into VFS root.')
+            VFSFolder.new(package.parent.name, self, package)
