@@ -13,6 +13,7 @@ class SettingsWindow(object):
     project:AppSettings # This name is used by GUI helpers
     settings_frame:ttk.Frame
     buttons_frame:ttk.Frame
+    msfs_packages_frame = helpers.PathChooser
     compress_on_build_var:tk.BooleanVar
     compress_on_build_button:ttk.Checkbutton
     texconv_frame:helpers.PathChooser
@@ -30,8 +31,14 @@ class SettingsWindow(object):
         self.project = self.settings
         self.settings_frame = ttk.Frame(self.win)
         self.settings_frame.pack(padx=5, pady=5, fill=tk.X)
+        self.msfs_packages_frame = helpers.PathChooser(self.settings_frame, self,
+                                                    property='msfs_package_path',
+                                                    button_command=self.choose_msfs_package_path,
+                                                    title='MSFS package path', state=tk.NORMAL)
+        self.msfs_packages_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
+        self.msfs_packages_frame.load()
         self.compress_on_build_var = tk.BooleanVar(self.win, value=self.settings.compress_textures_on_build)
-        self.compress_on_build_button = ttk.Checkbutton(self.settings_frame, command=self.set_compress_on_build,
+        self.compress_on_build_button = ttk.Checkbutton(self.settings_frame,
                                                         text='Compress new or modified textures on build',
                                                         variable=self.compress_on_build_var)
         self.compress_on_build_button.pack(side=tk.TOP, fill=tk.X)
@@ -52,6 +59,11 @@ class SettingsWindow(object):
         self.download_texconv_button.pack(side=tk.LEFT)
         self.win.grab_set()
     
+    def choose_msfs_package_path(self):
+        path = filedialog.askdirectory(title='Select MSFS packages folder')
+        if path and Path(path).is_dir():
+            self.msfs_packages_frame.set(path)
+    
     def set_compress_on_build(self):
         self.settings.compress_textures_on_build = self.compress_on_build_var.get()
     
@@ -60,12 +72,14 @@ class SettingsWindow(object):
                                                 ('Texconv executable', 'texconv.exe'),
                                             ))
         if Path(path).is_file():
-            self.texconv_frame.value.set(path)
+            self.texconv_frame.set(path)
     
     def download_texconv(self):
         webbrowser.open(helpers.TEXCONV_URL)
     
     def ok_command(self):
+        self.settings.msfs_package_path = self.msfs_packages_frame.value.get()
+        self.settings.compress_textures_on_build = self.compress_on_build_var.get()
         self.settings.texconv_path = self.texconv_frame.value.get()
         self.settings.save()
         self.win.grab_release()

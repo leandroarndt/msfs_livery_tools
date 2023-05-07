@@ -7,6 +7,18 @@ class AppSettings(object):
     file:Path
     
     @property
+    def msfs_package_path(self)->Path:
+        try:
+            return __class__._config_parser['PACKAGES']['msfs_package_path']
+        except KeyError:
+            return ''
+
+    @msfs_package_path.setter
+    def msfs_package_path(self, path:str):
+        print(path)
+        __class__._config_parser['PACKAGES']['msfs_package_path'] = path
+    
+    @property
     def compress_textures_on_build(self)->bool:
         try:
             return True if __class__._config_parser['BUILD']['compress_textures'] == 'True' else False
@@ -19,7 +31,10 @@ class AppSettings(object):
     
     @property
     def texconv_path(self)->str:
-        return __class__._config_parser['GENERAL']['texconv_path']
+        try:
+            return __class__._config_parser['GENERAL']['texconv_path']
+        except KeyError:
+            return ''
     
     @texconv_path.setter
     def texconv_path(self, path:str):
@@ -49,7 +64,7 @@ class AppSettings(object):
         if __class__._config_parser is None:
             __class__._config_parser = configparser.ConfigParser()
         __class__._config_parser.read(self.file)
-        for section in ('GENERAL', 'BUILD'):
+        for section in ('GENERAL', 'BUILD', 'PACKAGES'):
             if section not in __class__._config_parser.sections():
                 __class__._config_parser.add_section(section)
                 self.save()
