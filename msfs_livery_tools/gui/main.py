@@ -21,6 +21,7 @@ class MainWindow(object):
     project_modified:bool = False
     vfs:VFS
     vfs_queue:Queue
+    loading_vfs:bool = False
     
     # Main window
     win:tk.Tk
@@ -30,6 +31,7 @@ class MainWindow(object):
     menu:tk.Menu
     file_menu:tk.Menu
     recent_menu:tk.Menu
+    edit_menu:tk.Menu
     help_menu:tk.Menu
     
     # Toolbar
@@ -107,6 +109,8 @@ class MainWindow(object):
     # Progress bar
     bottom_frame:ttk.Frame
     progress_bar:ttk.Progressbar
+    progress_text:tk.StringVar
+    progress_label:ttk.Label
     
     def __init__(self):
         self.app_settings = AppSettings()
@@ -144,7 +148,10 @@ class MainWindow(object):
         self.file_menu.add_command(label='Quit', command=self.on_close, accelerator='Ctrl+Q')
         self.win.bind_all('<Control-q>', self.on_close)
         self.menu.add_cascade(label='File', underline=0, menu=self.file_menu)
-        self.menu.add_command(label='Settings', command=self.settings, underline=0)
+        self.edit_menu = tk.Menu(self.menu)
+        self.edit_menu.add_command(label='Settings', command=self.settings, underline=0)
+        self.edit_menu.add_command(label='Reload MSFS packages', command=self.reload_vfs, underline=0)
+        self.menu.add_cascade(label='Edit', underline=0, menu=self.edit_menu)
         self.help_menu = tk.Menu(self.menu)
         self.help_menu.add_command(label='Online manual',
             command = lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki'),
@@ -338,6 +345,9 @@ class MainWindow(object):
                                             maximum=100, value=0)
         self.progress_bar.pack(fill=tk.X, side=tk.BOTTOM, anchor=tk.S)
         self.agent = actions.Agent(self.progress_bar)
+        self.progress_text = tk.StringVar(self.win, '')
+        # Not packed until used
+        self.progress_label = ttk.Label(self.bottom_frame, textvariable=self.progress_text)
         
         # Close splash window
         while self.monitor_scanner(scanner, splash_window):
@@ -348,26 +358,35 @@ class MainWindow(object):
     # Monitor VFS scanner
     def monitor_scanner(self, scanner:package_scanner.Scanner, splash_window:splash.Splash|None=None):
         if scanner.is_alive():
-            if self.progress_bar['mode'] != 'indeterminate':
-                self.progress_bar['mode'] = 'indeterminate'
-                self.progress_bar.start()
+            if not splash_window:
+                if self.progress_bar['mode'] != 'indeterminate':
+                    self.progress_bar.config(mode='indeterminate')
+                    self.progress_bar.start()
+                    self.progress_label.pack(fill=tk.X)
             
             current = ''
             try:
                 current = self.vfs_queue.get(block=False)
                 if splash_window and current:
                     splash_window.action_var.set(current)
+                elif current:
+                    self.progress_text.set(current)
             except Empty:
                 pass
             
             if splash_window:
                 splash_window.win.update()
+            else:
+                self.win.update()
             return True
         else:
-            self.progress_bar.stop()
-            self.progress_bar['mode'] = 'determinate'
             if splash_window:
                 splash_window.win.destroy()
+            else:
+                self.progress_text.set('')
+                self.progress_label.pack_forget()
+                self.progress_bar.stop()
+                self.progress_bar['mode'] = 'determinate'
         return False
     
     # Interface methods
@@ -386,10 +405,12 @@ class MainWindow(object):
                 except tk.TclError:
                     pass
             if hasattr(child, 'children'):
-                self.set_children_state(child)
+                self.set_children_state(child, state)
     
     # Menu/Toolbar methods
     def new_project(self):
+        if self.loading_vfs:
+            return
         path = filedialog.askdirectory(mustexist=False, title='Select project folder')
         if not path:
             return
@@ -430,6 +451,8 @@ class MainWindow(object):
         self.populate(self.project_notebook)
     
     def open_project(self, path:str|None=None):
+        if self.loading_vfs:
+            return
         if not path:
             path = filedialog.askdirectory(mustexist=True, title='Select project folder')
             if not path:
@@ -475,6 +498,8 @@ class MainWindow(object):
                 self.populate(child)
     
     def save_project(self):
+        if self.loading_vfs:
+            return
         self.project.save()
         self.project_modified = False
         self.save_project_button.config(state=tk.DISABLED)
@@ -500,6 +525,33 @@ class MainWindow(object):
     def settings(self):
         settings_window = settings.SettingsWindow(self.win)
         settings_window.win.wait_window(settings_window.master)
+    
+    def reload_vfs(self):
+        self.loading_vfs = True
+        self.set_children_state(self.win, state=tk.DISABLED)
+        self.menu.entryconfig(0, state=tk.DISABLED)
+        self.menu.entryconfig(1, state=tk.DISABLED)
+        self.menu.entryconfig(2, state=tk.DISABLED)
+        self.progress_label.config(state=tk.NORMAL)
+        self.progress_text.set('Reloading MSFS packages…')
+        scanner = package_scanner.Scanner(self, self.vfs_queue, new_vfs=False)
+        scanner.start()
+        
+        while self.monitor_scanner(scanner):
+            time.sleep(1/30)
+        
+        self.menu.entryconfig(1, state=tk.NORMAL)
+        self.menu.entryconfig(2, state=tk.NORMAL)
+        if self.project is not None:
+            self.set_children_state(self.win, state=tk.NORMAL)
+            if not self.project_modified:
+                self.save_project_button.config(state=tk.DISABLED)
+                self.file_menu.entryconfig(3, state=tk.DISABLED)
+        else:
+            self.new_project_button.config(state=tk.NORMAL)
+            self.open_project_button.config(state=tk.NORMAL)
+            self.settings_button.config(state=tk.NORMAL)
+        self.loading_vfs = False
     
     def about(self):
         about_window = about.About(self.win)
