@@ -10,13 +10,15 @@ import webbrowser
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
-from . import styles, helpers, settings, actions, about, splash
+from msfs_livery_tools.vfs import VFS
+from . import styles, helpers, settings, actions, about, splash, package_scanner
 import __main__
 
 class MainWindow(object):
     project:Project = None
     app_settings:AppSettings
     project_modified:bool = False
+    vfs:VFS
     
     # Main window
     win:tk.Tk
@@ -118,6 +120,10 @@ class MainWindow(object):
         
         # Splash Screen
         splash_window = splash.Splash(self.win)
+        
+        # Load packages onto VFS
+        scanner = package_scanner.Scanner(self, splash_window)
+        scanner.start()
         
         # Menu
         self.menu = tk.Menu(self.win)
@@ -331,8 +337,27 @@ class MainWindow(object):
         self.agent = actions.Agent(self.progress_bar)
         
         # Close splash window
+        
+        while self.monitor(scanner, splash_window):
+            self.win.after(30, lambda: None)
         splash_window.win.destroy()
         self.win.deiconify()
+    
+    # Monitor VFS scanner
+    def monitor(self, scanner, splash_window=None):
+        if scanner.is_alive():
+            if self.progress_bar['mode'] != 'indeterminate':
+                self.progress_bar['mode'] = 'indeterminate'
+                self.progress_bar.start()
+            if splash_window:
+                splash_window.win.update()
+            return True
+        else:
+            self.progress_bar.stop()
+            self.progress_bar['mode'] = 'determinate'
+            if splash_window:
+                splash_window.win.destroy()
+        return False
     
     # Interface methods
     
