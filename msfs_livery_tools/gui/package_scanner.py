@@ -10,7 +10,6 @@ class Scanner(Thread):
         super().__init__(*args, **kwargs)
         self.parent = parent
         self.settings = AppSettings()
-        self.splash = splash
     
     def run(self):
         self.parent.vfs = VFS.new(self.settings.msfs_package_path)

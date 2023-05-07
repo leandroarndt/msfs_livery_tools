@@ -337,7 +337,6 @@ class MainWindow(object):
         self.agent = actions.Agent(self.progress_bar)
         
         # Close splash window
-        
         while self.monitor_scanner(scanner, splash_window):
             self.win.after(30, lambda: None)
         splash_window.win.destroy()
