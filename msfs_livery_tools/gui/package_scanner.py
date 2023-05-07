@@ -17,7 +17,9 @@ class Scanner(Thread):
     
     def run(self):
         if self.new_vfs:
-            self.parent.vfs = VFS.new(self.settings.msfs_package_path, queue=self.queue)
+            self.parent.vfs = VFS.new(self.settings.msfs_package_path,
+                                        include_all=self.settings.scan_all_folders,
+                                        queue=self.queue)
         else:
             self.parent.vfs.package_folder = Path(self.settings.msfs_package_path)
-            self.parent.vfs.scan(queue=self.queue)
+            self.parent.vfs.scan(queue=self.queue, include_all=self.settings.scan_all_folders)

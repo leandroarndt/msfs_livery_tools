@@ -19,6 +19,17 @@ class AppSettings(object):
         __class__._config_parser['PACKAGES']['msfs_package_path'] = path
     
     @property
+    def scan_all_folders(self)->bool:
+        try:
+            return True if __class__._config_parser['PACKAGES']['scan_all_folders'] == 'True' else False
+        except KeyError:
+            return False
+    
+    @scan_all_folders.setter
+    def scan_all_folders(self, value:bool):
+        __class__._config_parser['PACKAGES']['scan_all_folders'] = str(value)
+    
+    @property
     def compress_textures_on_build(self)->bool:
         try:
             return True if __class__._config_parser['BUILD']['compress_textures'] == 'True' else False
