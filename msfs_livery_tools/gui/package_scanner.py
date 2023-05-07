@@ -6,10 +6,12 @@ from threading import Thread
 class Scanner(Thread):
     progress_bar_mode:str = 'indeterminate'
     
-    def __init__(self, parent, splash=None, *args, **kwargs):
+    def __init__(self, parent, queue, splash=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent = parent
         self.settings = AppSettings()
+        self.splash = splash
+        self.queue = queue
     
     def run(self):
-        self.parent.vfs = VFS.new(self.settings.msfs_package_path)
+        self.parent.vfs = VFS.new(self.settings.msfs_package_path, queue=self.queue)

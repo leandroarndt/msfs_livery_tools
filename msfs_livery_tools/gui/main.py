@@ -1,11 +1,12 @@
 """Main application window"""
-import shutil
+import shutil, time
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from idlelib.tooltip import Hovertip
 from pathlib import Path, PureWindowsPath
+from queue import Queue, Empty
 import webbrowser
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
@@ -19,6 +20,7 @@ class MainWindow(object):
     app_settings:AppSettings
     project_modified:bool = False
     vfs:VFS
+    vfs_queue:Queue
     
     # Main window
     win:tk.Tk
@@ -122,7 +124,8 @@ class MainWindow(object):
         splash_window = splash.Splash(self.win)
         
         # Load packages onto VFS
-        scanner = package_scanner.Scanner(self, splash_window)
+        self.vfs_queue = Queue()
+        scanner = package_scanner.Scanner(self, self.vfs_queue, splash_window)
         scanner.start()
         
         # Menu
@@ -338,16 +341,25 @@ class MainWindow(object):
         
         # Close splash window
         while self.monitor_scanner(scanner, splash_window):
-            self.win.after(30, lambda: None)
+            time.sleep(1/30)
         splash_window.win.destroy()
         self.win.deiconify()
     
     # Monitor VFS scanner
-    def monitor_scanner(self, scanner, splash_window=None):
+    def monitor_scanner(self, scanner:package_scanner.Scanner, splash_window:splash.Splash|None=None):
         if scanner.is_alive():
             if self.progress_bar['mode'] != 'indeterminate':
                 self.progress_bar['mode'] = 'indeterminate'
                 self.progress_bar.start()
+            
+            current = ''
+            try:
+                current = self.vfs_queue.get(block=False)
+                if splash_window and current:
+                    splash_window.action_var.set(current)
+            except Empty:
+                pass
+            
             if splash_window:
                 splash_window.win.update()
             return True
