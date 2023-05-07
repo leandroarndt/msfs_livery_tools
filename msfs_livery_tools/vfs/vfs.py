@@ -121,13 +121,13 @@ class VFS(_VFSContainer, object):
     _instance = None
     
     @classmethod
-    def new(cls, package_folder:str|Path, include_extra=[], include_all:bool=False):
+    def new(cls, package_folder:str|Path, include_extra=[], include_all:bool=False, queue=None):
         
         if cls._instance is None:
             cls._instance = cls()
             cls._instance.package_folder = Path(package_folder)
             cls._instance.contents = {}
-            cls._instance.scan(include_extra, include_all)
+            cls._instance.scan(include_extra, include_all, queue)
         
         return cls._instance
     
@@ -140,7 +140,9 @@ class VFS(_VFSContainer, object):
     def _ne__(self, other):
         return self.package_folder != other.package_folder
     
-    def scan(self, include_extra=[], include_all:bool=False):
+    def scan(self, include_extra=[], include_all:bool=False, queue=None):
+        if hasattr(queue, 'put'):
+            queue.put('Loading MSFS packages…')
         if include_all:
             packages = list(self.package_folder.glob('**/layout.json'))
         else:
@@ -148,5 +150,7 @@ class VFS(_VFSContainer, object):
         for extra in include_extra:
             packages += list(Path(extra).glob('**/layout.json'))
         for package in packages:
-            print(f'Adding {package.parent.name} into VFS root.')
+            print(f'Adding {package.parent.name} into VFS root…')
+            if hasattr(queue, 'put'):
+                queue.put(f'Adding {package.parent.name} into VFS root…')
             VFSFolder.scan_layout(package, self)
