@@ -5,7 +5,6 @@ from threading import Thread
 
 class Scanner(Thread):
     progress_bar_mode:str = 'indeterminate'
-    running = False
     
     def __init__(self, parent, splash=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -14,5 +13,4 @@ class Scanner(Thread):
         self.splash = splash
     
     def run(self):
-        self.running = True
         self.parent.vfs = VFS.new(self.settings.msfs_package_path)
