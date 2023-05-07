@@ -141,6 +141,7 @@ class VFS(_VFSContainer, object):
         return self.package_folder != other.package_folder
     
     def scan(self, include_extra=[], include_all:bool=False, queue=None):
+        self.contents = {} # Resets prior to scan
         if hasattr(queue, 'put'):
             queue.put('Loading MSFS packages…')
         if include_all:
