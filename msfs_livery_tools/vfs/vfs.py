@@ -1,6 +1,7 @@
 """Implements a parallel of MSFS package virtual file system."""
 import json
 from pathlib import Path
+from queue import Queue
 
 class _VFSObject(object):
     name:str
@@ -140,9 +141,9 @@ class VFS(_VFSContainer, object):
     def _ne__(self, other):
         return self.package_folder != other.package_folder
     
-    def scan(self, include_extra=[], include_all:bool=False, queue=None):
+    def scan(self, include_extra=[], include_all:bool=False, queue:Queue=None):
         self.contents = {} # Resets prior to scan
-        if hasattr(queue, 'put'):
+        if isinstance(queue, Queue):
             queue.put('Loading MSFS packages…')
         if include_all:
             packages = list(self.package_folder.glob('**/layout.json'))
@@ -152,6 +153,8 @@ class VFS(_VFSContainer, object):
             packages += list(Path(extra).glob('**/layout.json'))
         for package in packages:
             print(f'Adding {package.parent.name} into VFS root…')
-            if hasattr(queue, 'put'):
+            if isinstance(queue, Queue):
+                if not queue.empty():
+                    queue.get(block=False)
                 queue.put(f'Adding {package.parent.name} into VFS root…')
             VFSFolder.scan_layout(package, self)
