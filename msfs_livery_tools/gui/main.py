@@ -10,7 +10,7 @@ import webbrowser
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
-from . import styles, helpers, settings, actions, about
+from . import styles, helpers, settings, actions, about, splash
 import __main__
 
 class MainWindow(object):
@@ -110,10 +110,14 @@ class MainWindow(object):
         
         # Main window
         self.win = tk.Tk()
+        self.win.withdraw()
         styles.init(self.win)
         self.set_title()
         self.win.iconbitmap(Path(__main__.RESOURCES_DIR, 'msfs livery tools.ico'))
         self.win.protocol('WM_DELETE_WINDOW', self.on_close)
+        
+        # Splash Screen
+        splash_window = splash.Splash(self.win)
         
         # Menu
         self.menu = tk.Menu(self.win)
@@ -325,6 +329,10 @@ class MainWindow(object):
                                             maximum=100, value=0)
         self.progress_bar.pack(fill=tk.X, side=tk.BOTTOM, anchor=tk.S)
         self.agent = actions.Agent(self.progress_bar)
+        
+        # Close splash window
+        splash_window.win.destroy()
+        self.win.deiconify()
     
     # Interface methods
     
