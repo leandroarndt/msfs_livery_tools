@@ -338,13 +338,13 @@ class MainWindow(object):
         
         # Close splash window
         
-        while self.monitor(scanner, splash_window):
+        while self.monitor_scanner(scanner, splash_window):
             self.win.after(30, lambda: None)
         splash_window.win.destroy()
         self.win.deiconify()
     
     # Monitor VFS scanner
-    def monitor(self, scanner, splash_window=None):
+    def monitor_scanner(self, scanner, splash_window=None):
         if scanner.is_alive():
             if self.progress_bar['mode'] != 'indeterminate':
                 self.progress_bar['mode'] = 'indeterminate'
