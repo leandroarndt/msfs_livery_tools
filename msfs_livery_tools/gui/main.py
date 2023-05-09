@@ -413,7 +413,7 @@ class MainWindow(object):
                 self.menu.entryconfig(1, state=tk.NORMAL)
                 self.menu.entryconfig(2, state=tk.NORMAL)
                 if not self.project_modified:
-                    self.file_menu.entryconfig(3, state=tk.DISABLED)
+                    self.file_menu.entryconfig(2, state=tk.DISABLED)
                     self.save_project_button.config(state=tk.DISABLED)
             elif state == tk.DISABLED:
                 self.gui_disabled = True
