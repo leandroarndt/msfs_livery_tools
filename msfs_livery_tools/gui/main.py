@@ -21,7 +21,7 @@ class MainWindow(object):
     project_modified:bool = False
     vfs:VFS
     vfs_queue:Queue
-    loading_vfs:bool = False
+    gui_disabled:bool = False
     
     # Main window
     win:tk.Tk
@@ -406,10 +406,25 @@ class MainWindow(object):
                     pass
             if hasattr(child, 'children'):
                 self.set_children_state(child, state)
+        if parent == self.win:
+            if state == tk.NORMAL:
+                self.gui_disabled = False
+                self.menu.entryconfig(0, state=tk.NORMAL)
+                self.menu.entryconfig(1, state=tk.NORMAL)
+                self.menu.entryconfig(2, state=tk.NORMAL)
+                if not self.project_modified:
+                    self.file_menu.entryconfig(3, state=tk.DISABLED)
+                    self.save_project_button.config(state=tk.DISABLED)
+            elif state == tk.DISABLED:
+                self.gui_disabled = True
+                self.menu.entryconfig(0, state=tk.DISABLED)
+                self.menu.entryconfig(1, state=tk.DISABLED)
+                self.menu.entryconfig(2, state=tk.DISABLED)
+            self.win.update()
     
     # Menu/Toolbar methods
     def new_project(self):
-        if self.loading_vfs:
+        if self.gui_disabled:
             return
         path = filedialog.askdirectory(mustexist=False, title='Select project folder')
         if not path:
@@ -434,10 +449,8 @@ class MainWindow(object):
         except AttributeError: # There is no open project
             pass
         self.project = Project(path, self.join_model_check_button.value.get())
-        self.set_children_state(self.win)
+        self.set_children_state(self.win, tk.NORMAL)
         self.project_modified = False
-        self.save_project_button.config(state=tk.DISABLED)
-        self.file_menu.entryconfigure(3, state=tk.DISABLED)
         self.agent.project = self.project
         self.set_title()
         
@@ -451,7 +464,7 @@ class MainWindow(object):
         self.populate(self.project_notebook)
     
     def open_project(self, path:str|None=None):
-        if self.loading_vfs:
+        if self.gui_disabled:
             return
         if not path:
             path = filedialog.askdirectory(mustexist=True, title='Select project folder')
@@ -477,10 +490,8 @@ class MainWindow(object):
             pass
         self.project = Project(path)
         self.populate(self.project_notebook)
-        self.set_children_state(self.win)
+        self.set_children_state(self.win, tk.NORMAL)
         self.project_modified = False
-        self.save_project_button.config(state=tk.DISABLED)
-        self.file_menu.entryconfigure(3, state=tk.DISABLED)
         self.agent.project = self.project
         
         # Rebuild recent files menu
@@ -498,7 +509,7 @@ class MainWindow(object):
                 self.populate(child)
     
     def save_project(self):
-        if self.loading_vfs:
+        if self.gui_disabled:
             return
         self.project.save()
         self.project_modified = False
@@ -527,11 +538,7 @@ class MainWindow(object):
         settings_window.win.wait_window(settings_window.master)
     
     def reload_vfs(self):
-        self.loading_vfs = True
         self.set_children_state(self.win, state=tk.DISABLED)
-        self.menu.entryconfig(0, state=tk.DISABLED)
-        self.menu.entryconfig(1, state=tk.DISABLED)
-        self.menu.entryconfig(2, state=tk.DISABLED)
         self.progress_label.config(state=tk.NORMAL)
         self.progress_text.set('Reloading MSFS packages…')
         scanner = package_scanner.Scanner(self, self.vfs_queue, new_vfs=False)
@@ -540,18 +547,7 @@ class MainWindow(object):
         while self.monitor_scanner(scanner):
             time.sleep(1/30)
         
-        self.menu.entryconfig(1, state=tk.NORMAL)
-        self.menu.entryconfig(2, state=tk.NORMAL)
-        if self.project is not None:
-            self.set_children_state(self.win, state=tk.NORMAL)
-            if not self.project_modified:
-                self.save_project_button.config(state=tk.DISABLED)
-                self.file_menu.entryconfig(3, state=tk.DISABLED)
-        else:
-            self.new_project_button.config(state=tk.NORMAL)
-            self.open_project_button.config(state=tk.NORMAL)
-            self.settings_button.config(state=tk.NORMAL)
-        self.loading_vfs = False
+        self.set_children_state(self.win, tk.NORMAL)
     
     def about(self):
         about_window = about.About(self.win)
@@ -579,11 +575,10 @@ class MainWindow(object):
         if self.agent.running:
             self.win.after(100, self.wait_agent)
         else:
-            self.set_children_state(self.actions_frame, tk.NORMAL)
+            self.set_children_state(self.win, tk.NORMAL)
     
     def extract_textures(self):
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         path = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
             ('glTF models', '*.gltf'),
@@ -599,27 +594,24 @@ class MainWindow(object):
         self.wait_agent()
     
     def compress_textures(self):
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         self.agent.compress_textures()
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def dds_json(self):
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         self.agent.create_dds_descriptors()
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def create_flags(self): # package.flags.create_flags
         pass
     
     def create_texture_cfg(self):
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         path = filedialog.askopenfilename(defaultextension='texture.cfg', filetypes=(
             ('Texture configuration', 'texture.cfg'),
@@ -628,11 +620,10 @@ class MainWindow(object):
         if path:
             self.agent.create_texture_cfg(path)
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def write_aircraft_cfg(self): # package.aircraft_cfg.write_aircraft.cfg
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         if self.base_container_frame.value.get() == helpers.NOT_SET:
             path = filedialog.askopenfilename(defaultextension='aircraft.cfg', filetypes=(
@@ -650,19 +641,18 @@ class MainWindow(object):
             except actions.ConfigurationError as e:
                 messagebox.showerror(title='Configuration error', message=str(e))
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def create_panel(self): # package.panel_cfg.create_empty
-        self.set_children_state(self.actions_frame, tk.DISABLED)
+        self.set_children_state(self.win, tk.DISABLED)
         self.win.update()
         
         self.agent.create_empty_panel()
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def copy_panel(self): # package.panel_cfg.copy_original
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         path = filedialog.askopenfilename(defaultextension='panel.cfg', filetypes=(
             ('Panel configuration', 'panel.cfg'),
@@ -670,11 +660,10 @@ class MainWindow(object):
         title='Choose original panel configuration file')
         self.agent.copy_panel(path)
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def set_registration_colors(self): # package.panel_cfg.set_registration_colors
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         try:
             self.agent.set_registration_colors()
@@ -683,11 +672,10 @@ class MainWindow(object):
         except panel_cfg.RegistrationWarning as e:
             messagebox.showwarning('Review "panel.cfg"!', str(e))
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def create_manifest_json(self): # package.manifest.from_original
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         if self.base_container_frame.value.get() == helpers.NOT_SET:
             path = filedialog.askopenfilename(defaultextension='manifest.json', filetypes=(
@@ -695,7 +683,7 @@ class MainWindow(object):
             ), initialdir=Path(self.origin_entry.value.get()),
             title='Choose original aircraft manifest file')
             if not path:
-                self.set_children_state(self.actions_frame, tk.NORMAL)
+                self.set_children_state(self.win, tk.NORMAL)
                 return
             self.agent.create_manifest(path)
             self.origin_entry.load()
@@ -706,17 +694,16 @@ class MainWindow(object):
             except actions.ConfigurationError as e:
                 messagebox.showerror(title='Configuration error', message=str(e))
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def pack_livery(self): # Complex
         # Prepare window
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         # Ask path
         path = filedialog.askdirectory(mustexist=False, title='Choose package folder')
         if not path:
-            self.set_children_state(self.actions_frame, tk.NORMAL)
+            self.set_children_state(self.win, tk.NORMAL)
             return
         
         # Tries to discover if there will be airplane folder overlap
@@ -743,8 +730,7 @@ class MainWindow(object):
         self.agent.error = None
     
     def update_layout(self): # package.layout.create_layout
-        self.set_children_state(self.actions_frame, tk.DISABLED)
-        self.win.update()
+        self.set_children_state(self.win, tk.DISABLED)
         
         path = filedialog.askopenfilename(defaultextension='layout.json', filetypes=(
             ('Package layout', 'layout.json'),
@@ -753,7 +739,7 @@ class MainWindow(object):
             return
         self.agent.update_layout(path)
         
-        self.set_children_state(self.actions_frame, tk.NORMAL)
+        self.set_children_state(self.win, tk.NORMAL)
     
     def on_close(self, event=None):
         if self.project_modified:
