@@ -22,7 +22,57 @@ class _VFSContainer:
         return name.lower() in self.contents
     
     def __getitem__(self, key):
+        if hasattr(key, 'lower'):
+            return self.contents[key.lower()]
         return self.contents[key]
+    
+    def keys(self):
+        return self.contents.keys()
+    
+    def navigate(self, path:str)->_VFSObject:
+        sep = '/'
+        if '\\' in path:
+            sep = '\\'
+        if path == '':
+            return self
+        path = path.lower()
+        parts = path.split(sep)
+        if parts:
+            next_part = parts.pop(0)
+            if next_part == '..':
+                return self.parent.navigate(sep.join(parts))
+            if parts:
+                return self.contents[next_part.lower()].navigate(sep.join(parts))
+            return self.contents[next_part]
+        return self
+    
+    def find(self, file_name:str, fallbacks:list[str])->Path:
+        """Finds a file "file_name" in this folder and in "fallbacks" and returns the corresponding VFSFile.
+        
+        Args:
+            file_name (str): file name to search for
+            fallbacks (list[str]): list of VFS folders to search relative to VFSFolder object.
+        
+        Returns:
+            Path: real file system path for "file_name" in "fallbacks".
+        """
+        if file_name.lower() in self.contents:
+            return self.contents[file_name.lower()]
+        for fallback in fallbacks:
+            try:
+                fallback = Path(fallback)
+                parts = fallback.parts
+                folder = self
+                for part in parts:
+                    if part == '..':
+                        folder = folder.parent
+                    else:
+                        folder = folder.contents[part.lower()]
+                if file_name.lower() in folder.contents:
+                    return folder.contents[file_name.lower()]
+            except KeyError:
+                pass
+        raise FileNotFoundError
 
 class VFSFolder(_VFSObject, _VFSContainer):
     
@@ -58,7 +108,7 @@ class VFSFolder(_VFSObject, _VFSContainer):
             instance.scan_layout(layout)
         
         return instance
-
+    
     @classmethod
     def scan_layout(cls, layout_file:Path, root):
         with layout_file.open('r') as f:
@@ -74,34 +124,6 @@ class VFSFolder(_VFSObject, _VFSContainer):
                 VFSFile(path, folder, layout_file.parent)
             except KeyError:
                 pass
-    
-    def find(self, file_name:str, fallbacks:list[str])->Path:
-        """Finds a file "file_name" in this folder and in "fallbacks" and returns the corresponding VFSFile.
-
-        Args:
-            file_name (str): file name to search for
-            fallbacks (list[str]): list of VFS folders to search relative to VFSFolder object.
-
-        Returns:
-            Path: real file system path for "file_name" in "fallbacks".
-        """
-        if file_name.lower() in self.contents:
-            return self.contents[file_name.lower()]
-        for fallback in fallbacks:
-            try:
-                fallback = Path(fallback)
-                parts = fallback.parts
-                folder = self
-                for part in parts:
-                    if part == '..':
-                        folder = folder.parent
-                    else:
-                        folder = folder.contents[part.lower()]
-                if file_name.lower() in folder.contents:
-                    return folder.contents[file_name.lower()]
-            except KeyError:
-                pass
-        raise FileNotFoundError
 
 class VFSFile(_VFSObject):
     file:Path
@@ -120,6 +142,7 @@ class VFS(_VFSContainer, object):
     contents:dict = {}
     package_folder:Path
     _instance = None
+    name = 'VFS root'
     
     @classmethod
     def new(cls, package_folder:str|Path, include_extra=[], include_all:bool=False, queue=None):
