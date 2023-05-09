@@ -105,6 +105,11 @@ class Agent(object):
         self.progress_bar['value'] = 0
     
     def extract_textures(self, gltf:str|Path, vfs:VFS):
+        thread = Runner(self._do_extract_textures, gltf, VFS)
+        thread.start()
+        self.monitor(thread)
+    
+    def _do_extract_textures(self, gltf:str|Path, vfs:VFS):
         # Prepare path variables
         gltf = Path(gltf)
         original_suffix = gltf.parent.suffix
