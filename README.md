@@ -2,12 +2,10 @@
 
 # MSFS Livery Tools
 
-MSFS Livery Tools is a windows application to help creating livery for existing aircrafts
-on Microsoft Flight Simulator 2020. It deals with all bureaucratic steps of livery creation,
-so that you can focus on your creative work:
+MSFS Livery Tools is a Windows application to help creating liveries for existing aircrafts on Microsoft Flight Simulator 2020. It deals with all bureaucratic steps of livery creation, so that you can focus on your creative work:
 
 * Extract images from glTF JSON files and compress them again to DDS format.
-* Package your livery.
+* Package your livery and automatically create the needed files and folders.
 * Creating the directory structure of a package.
 * Creating an "aircraft.cfg" file based on the original aircraft and variation information.
 * Creating a "manifest.json" file (optionally based on the original manifest).
