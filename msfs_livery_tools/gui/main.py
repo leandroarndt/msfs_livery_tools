@@ -709,17 +709,35 @@ class MainWindow(object):
         self.set_children_state(self.actions_frame, tk.NORMAL)
     
     def pack_livery(self): # Complex
+        # Prepare window
         self.set_children_state(self.actions_frame, tk.DISABLED)
         self.win.update()
         
+        # Ask path
         path = filedialog.askdirectory(mustexist=False, title='Choose package folder')
         if not path:
             self.set_children_state(self.actions_frame, tk.NORMAL)
             return
-        self.agent.package(path)
         
+        # Tries to discover if there will be airplane folder overlap
+        try:
+            if self.project.airplane_folder in self.vfs['simobjects']['airplanes']:
+                if not str(self.vfs['simobjects']['airplanes'][self.project.airplane_folder.lower()]['aircraft.cfg']\
+                    .real_path()).startswith(str(PureWindowsPath(path))):
+                        if not messagebox.askokcancel('WARNING', f'Airplane folder \
+{self.project.airplane_folder} conflicts with existing package at "\
+{self.vfs["simobjects"]["airplanes"][self.project.airplane_folder]["aircraft.cfg"].real_path().parent.parent.parent.parent}\
+"! Proceed?'):
+                            self.set_children_state(self.win, tk.NORMAL)
+                            return
+        except (KeyError):
+            pass
+        
+        # Do things
+        self.agent.package(path)
         self.wait_agent()
         
+        # Uh oh!
         if self.agent.error:
             messagebox.showerror(title='Configuration error', message=str(self.agent.error))
         self.agent.error = None
