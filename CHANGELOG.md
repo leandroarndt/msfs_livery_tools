@@ -1,5 +1,12 @@
 # MSFS Livery Tools changelog
 
+## v1.4
+
+* Prevents duplicating the airplane folder (which caused different liveries to overlap).
+* Extracts textures from fallback directories listed in texture.cfg.
+* Scans MSFS package folder (must be configured).
+* Minor interface changes.
+
 ## v1.3
 
 * Resizes thumbnail for both small and full-size formats.
