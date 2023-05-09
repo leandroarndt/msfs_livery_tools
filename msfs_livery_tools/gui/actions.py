@@ -1,4 +1,4 @@
-import configparser, shutil
+import configparser, shutil, time
 from pathlib import Path, PureWindowsPath
 from tkinter import ttk, filedialog
 from typing import Callable
@@ -7,6 +7,7 @@ from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.compression import dds
 from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout, panel_cfg, thumbnail
+from msfs_livery_tools.vfs import VFSFile, VFSFolder, VFS
 from .helpers import NOT_SET
 
 class ConfigurationError(Exception):
@@ -46,20 +47,28 @@ class Agent(object):
         else:
             return Path(self.project.file).parent / 'texture'
     
-    def _copy(self, source:str|Path, dest:str|Path, pattern='*', overwrite=True):
+    def _copy(self, source:str|Path, dest:str|Path, pattern='*', overwrite=True)->list[str]:
         source, dest = Path(source), Path(dest)
+        files = []
+        
         if not dest.exists():
             dest.mkdir()
+        
         if source.is_file():
             if Path(dest, source.name).exists() and overwrite:
                 Path(dest, source.name).unlink()
             shutil.copy(source, dest)
+            return [source.name]
+        
         for file in source.glob(pattern):
             print(f'Copying "{file}" to "{dest / file.name}"…')
             if file.is_file():
                 if Path(dest, file.name).exists() and overwrite:
                     Path(dest, file.name).unlink()
                 shutil.copy(file, dest)
+                files.append(file.name)
+        
+        return files
     
     def _move(self, source:str|Path, dest:str|Path, pattern='*', overwrite=True):
         source, dest = Path(source), Path(dest)
@@ -95,16 +104,82 @@ class Agent(object):
         self.progress_bar['maximum'] = self.progress_bar_maximum
         self.progress_bar['value'] = 0
     
-    def extract_textures(self, gltf:str|Path):
-        original_suffix = Path(gltf).parent.suffix
-        texture_dir = Path(gltf).parent.parent / Path('texture', original_suffix)
+    def extract_textures(self, gltf:str|Path, vfs:VFS):
+        # Prepare path variables
+        gltf = Path(gltf)
+        original_suffix = gltf.parent.suffix
+        texture_dir = gltf.parent.parent / ('texture' + original_suffix)
         output_dir = self._texture_dir()
+        
+        # Prepare texture copying
+        if gltf.resolve().as_posix().lower().startswith(self.settings.msfs_package_path.lower()):
+            try:
+                texture_dir = vfs['SimObjects']['Airplanes'][gltf.parent.parent.name][texture_dir.name]
+                
+            except KeyError:
+                pass
+        
+        # Fallbacks:
+        fallbacks = []
+        texture_config = configparser.ConfigParser()
+        if isinstance(texture_dir, VFSFolder):
+            texture_config.read(texture_dir['texture.cfg'].real_path())
+        else:
+            texture_config.read(texture_dir / 'texture.cfg')
+        for path in texture_config[texture_config.sections()[0]].values():
+            fallbacks.append(path)
+        
+        # Flag variables
+        flags_dir = [texture_dir]
+        try:
+            if isinstance(texture_dir, VFSFolder):
+                for path in texture_config[texture_config.sections()[0]].values():
+                    try:
+                        flags_dir.append(texture_dir.navigate(path))
+                    except FileNotFoundError:
+                        print(f'Could not find "{path}" on VFS!')
+            else:
+                # texture_config.read(texture_dir / 'texture.cfg')
+                for path in texture_config[texture_config.sections()[0]].values():
+                    flags_dir.append((texture_dir / path).resolve())
+                flags_dir.reverse()
+        except FileNotFoundError:
+            pass
+        flags = []
+        
+        # Assures the existence of output dir
         if not output_dir.is_dir():
             output_dir.mkdir()
-        self._copy(texture_dir, output_dir, '*.flags')
-        thread = Runner(dds.from_glft, gltf, texture_dir, output_dir, self.settings.texconv_path)
+        
+        # Copy flags in reverse order
+        for dir in flags_dir:
+            if isinstance(dir, VFSFolder):
+                for child in dir.keys():
+                    if child.lower().endswith('.flags'):
+                        flags += self._copy(dir[child].real_path(), output_dir)
+            else:
+                flags += self._copy(dir, output_dir, '*.flags')
+        
+        # Copy textures
+        thread = Runner(dds.from_glft, gltf, texture_dir, output_dir, self.settings.texconv_path,
+                        fallbacks=fallbacks)
         thread.start()
         self.monitor(thread)
+        
+        # Wait
+        while thread.is_alive():
+            time.sleep(1/30)
+        
+        # Get rid of unneeded flags
+        for flag in flags:
+            png_list = list(output_dir.glob('*.png'))
+            f = output_dir / Path(Path(Path(flag).stem).stem + '.png')
+            if output_dir / Path(Path(Path(flag).stem).stem + '.png') not in png_list:
+                print(f'Unlink "{flag}"!')
+                try:
+                    (output_dir / flag).unlink()
+                except:
+                    pass
     
     def compress_textures(self, only_new:bool=False):
         texture_dir = self._texture_dir()
