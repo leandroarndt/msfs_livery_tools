@@ -458,7 +458,8 @@ class MainWindow(object):
         self.app_settings.recent_files = path
         self.app_settings.save()
         self.recent_menu = self.build_recent_menu()
-        self.file_menu.entryconfigure(4, menu=self.recent_menu)
+        self.file_menu.entryconfigure(3, menu=self.recent_menu)
+        self.file_menu.entryconfig(3, state=tk.NORMAL)
         
         # Reset entries
         self.populate(self.project_notebook)
@@ -498,7 +499,8 @@ class MainWindow(object):
         self.app_settings.recent_files = path
         self.app_settings.save()
         self.recent_menu = self.build_recent_menu()
-        self.file_menu.entryconfigure(4, menu=self.recent_menu)
+        self.file_menu.entryconfigure(3, menu=self.recent_menu)
+        self.file_menu.entryconfig(3, state=tk.NORMAL)
         self.set_title()
     
     def populate(self, parent):
@@ -514,7 +516,7 @@ class MainWindow(object):
         self.project.save()
         self.project_modified = False
         self.save_project_button.config(state=tk.DISABLED)
-        self.file_menu.entryconfigure(3, state=tk.DISABLED)
+        self.file_menu.entryconfigure(2, state=tk.DISABLED)
     
     def create_opener(self, file):
         return lambda: self.open_project(file)
@@ -524,7 +526,7 @@ class MainWindow(object):
         recent = self.app_settings.recent_files
         if len(recent) == 0:
             menu.add_command(label='(Empty)', state=tk.DISABLED)
-            self.file_menu.entryconfigure(3, state=tk.DISABLED)
+            self.file_menu.entryconfigure(2, state=tk.DISABLED)
             return menu
         n = 0
         for file in recent:
