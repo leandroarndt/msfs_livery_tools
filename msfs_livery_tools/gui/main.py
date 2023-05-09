@@ -135,7 +135,7 @@ class MainWindow(object):
         # Menu
         self.menu = tk.Menu(self.win)
         self.win.config(menu=self.menu)
-        self.file_menu = tk.Menu(self.menu)
+        self.file_menu = tk.Menu(self.menu, tearoff=0)
         self.file_menu.add_command(label='New…', command=self.new_project, underline=0, accelerator='Ctrl+N')
         self.win.bind_all('<Control-n>', lambda event: self.new_project())
         self.file_menu.add_command(label='Open…', command=self.open_project, underline=0, accelerator='Ctrl+O')
@@ -148,11 +148,11 @@ class MainWindow(object):
         self.file_menu.add_command(label='Quit', command=self.on_close, accelerator='Ctrl+Q')
         self.win.bind_all('<Control-q>', self.on_close)
         self.menu.add_cascade(label='File', underline=0, menu=self.file_menu)
-        self.edit_menu = tk.Menu(self.menu)
+        self.edit_menu = tk.Menu(self.menu, tearoff=0)
         self.edit_menu.add_command(label='Settings', command=self.settings, underline=0)
         self.edit_menu.add_command(label='Reload MSFS packages', command=self.reload_vfs, underline=0)
         self.menu.add_cascade(label='Edit', underline=0, menu=self.edit_menu)
-        self.help_menu = tk.Menu(self.menu)
+        self.help_menu = tk.Menu(self.menu, tearoff=0)
         self.help_menu.add_command(label='Online manual',
             command = lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki'),
             underline=7)
