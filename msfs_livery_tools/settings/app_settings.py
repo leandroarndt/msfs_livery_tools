@@ -30,6 +30,17 @@ class AppSettings(object):
         __class__._config_parser['PACKAGES']['scan_all_folders'] = str(value)
     
     @property
+    def use_fallbacks(self)->bool:
+        try:
+            return True if __class__._config_parser['TEXTURES']['use_fallbacks'] == 'True' else False
+        except KeyError:
+            return False
+    
+    @use_fallbacks.setter
+    def use_fallbacks(self, value:bool):
+        __class__._config_parser['TEXTURES']['use_fallbacks'] = value
+    
+    @property
     def compress_textures_on_build(self)->bool:
         try:
             return True if __class__._config_parser['BUILD']['compress_textures'] == 'True' else False
@@ -75,7 +86,7 @@ class AppSettings(object):
         if __class__._config_parser is None:
             __class__._config_parser = configparser.ConfigParser()
         __class__._config_parser.read(self.file)
-        for section in ('GENERAL', 'BUILD', 'PACKAGES'):
+        for section in ('GENERAL', 'BUILD', 'PACKAGES', 'TEXTURES'):
             if section not in __class__._config_parser.sections():
                 __class__._config_parser.add_section(section)
                 self.save()

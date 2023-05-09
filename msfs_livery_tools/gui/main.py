@@ -591,7 +591,7 @@ class MainWindow(object):
         title='Choose glTF model to extract textures')
         if path:
             try:
-                self.agent.extract_textures(path)
+                self.agent.extract_textures(path, self.vfs)
             except ValueError:
                 messagebox.showerror(title='Error extracting textures',
                                     message=f'Could not extract textures from "{path}".')

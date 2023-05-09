@@ -13,12 +13,14 @@ class SettingsWindow(object):
     project:AppSettings # This name is used by GUI helpers
     settings_frame:ttk.Frame
     packages_frame:ttk.LabelFrame
-    build_frame:ttk.LabelFrame
+    texture_frame:ttk.LabelFrame
     texconv_label_frame:ttk.LabelFrame
     buttons_frame:ttk.Frame
     msfs_packages_frame = helpers.PathChooser
     scan_all_folders_var:tk.BooleanVar
     scan_all_folders_button:tk.Checkbutton
+    use_fallbacks_var:tk.BooleanVar
+    use_fallbacks_button:ttk.Checkbutton
     compress_on_build_var:tk.BooleanVar
     compress_on_build_button:ttk.Checkbutton
     texconv_frame:helpers.PathChooser
@@ -55,11 +57,15 @@ class SettingsWindow(object):
                                                         variable=self.scan_all_folders_var)
         self.scan_all_folders_button.pack(side=tk.TOP, fill=tk.X)
         
-        # Build settings
-        self.build_frame = ttk.LabelFrame(self.settings_frame, text='Build settings', padding=5)
-        self.build_frame.pack(fill=tk.X)
+        # Texture settings
+        self.texture_frame = ttk.LabelFrame(self.settings_frame, text='Build settings', padding=5)
+        self.texture_frame.pack(fill=tk.X)
+        self.use_fallbacks_var = tk.BooleanVar(self.win, value=self.settings.use_fallbacks)
+        self.use_fallbacks_button = ttk.Checkbutton(self.texture_frame,
+                                                    text='Use texture fallback dirs from "texture.cfg"',
+                                                    variable=self.use_fallbacks_var)
         self.compress_on_build_var = tk.BooleanVar(self.win, value=self.settings.compress_textures_on_build)
-        self.compress_on_build_button = ttk.Checkbutton(self.build_frame,
+        self.compress_on_build_button = ttk.Checkbutton(self.texture_frame,
                                                         text='Compress new or modified textures on build',
                                                         variable=self.compress_on_build_var)
         self.compress_on_build_button.pack(side=tk.TOP, fill=tk.X)
