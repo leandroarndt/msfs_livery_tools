@@ -105,7 +105,7 @@ class Agent(object):
         self.progress_bar['value'] = 0
     
     def extract_textures(self, gltf:str|Path, vfs:VFS):
-        thread = Runner(self._do_extract_textures, gltf, VFS)
+        thread = Runner(self._do_extract_textures, gltf, vfs)
         thread.start()
         self.monitor(thread)
     
