@@ -7,6 +7,10 @@
 * Scans MSFS package folder (must be configured).
 * Minor interface changes.
 
+### v1.4.1
+
+* Corrected a bug which prevented texture extraction in some cases
+
 ## v1.3
 
 * Resizes thumbnail for both small and full-size formats.

@@ -13,6 +13,7 @@ ABOUT = 'MSFS Livery Tools automates all bureaucratic tasks of MSFS 2020 livery 
 YOUTUBE = 'https://youtube.com/@fswt'
 VERSION = 1
 SUBVERSION = 4
+REVISION = 1
 
 if __name__ == '__main__':
     app = main.MainWindow()

@@ -32,7 +32,7 @@ class About(object):
         self.header_label.pack(side=tk.TOP, fill=tk.X, expand=True)
         self.about_label = ttk.Label(self.win, text=__main__.ABOUT)
         self.about_label.pack(side=tk.TOP, fill=tk.X, expand=True)
-        self.version_label = ttk.Label(self.win, text=f'Running version {__main__.VERSION}.{__main__.SUBVERSION}.')
+        self.version_label = ttk.Label(self.win, text=f'Running version {__main__.VERSION}.{__main__.SUBVERSION}.{__main__.REVISION}.')
         self.version_label.pack(side=tk.TOP, fill=tk.X, expand=True)
         self.copyright_title = ttk.Label(self.win, text='Use, modification and distribution terms',
                                         style=styles.HEADING)

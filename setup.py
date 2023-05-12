@@ -28,6 +28,6 @@ py2exe.freeze(
       version_info={
             'product_name': 'MSFS Livery Tools',
             'description': livery_tools.ABOUT,
-            'version': f'{livery_tools.VERSION}.{livery_tools.SUBVERSION}',
+            'version': f'{livery_tools.VERSION}.{livery_tools.SUBVERSION}.{livery_tools.REVISION}',
       },
 )
