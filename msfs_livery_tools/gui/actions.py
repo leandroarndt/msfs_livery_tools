@@ -186,6 +186,9 @@ class Agent(object):
                 except:
                     pass
     
+    def convert_dds_file(self, path:Path|str):
+        dds.convert(path, self._texture_dir(), self.settings.texconv_path, out_type='png')
+    
     def compress_textures(self, only_new:bool=False):
         texture_dir = self._texture_dir()
         textures = list(texture_dir.glob('*.png'))

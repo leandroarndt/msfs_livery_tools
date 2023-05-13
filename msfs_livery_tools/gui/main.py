@@ -87,6 +87,7 @@ class MainWindow(object):
     # Actions frame
     actions_frame:ttk.Labelframe
     extract_textures_button:ttk.Button
+    convert_dds_file_button:ttk.Button
     compress_textures_button:ttk.Button
     dds_json_button:ttk.Button
     texture_flags_button:ttk.Button
@@ -280,6 +281,9 @@ class MainWindow(object):
         self.extract_textures_button = ttk.Button(self.actions_frame, text='Extract textures',
                                                     command=self.extract_textures, state=tk.DISABLED)
         self.extract_textures_button.pack(fill=tk.X)
+        self.convert_dds_file_button = ttk.Button(self.actions_frame, text='Convert DDS file',
+                                                    command=self.convert_dds_file, state=tk.DISABLED)
+        self.convert_dds_file_button.pack(fill=tk.X)
         self.compress_textures_button = ttk.Button(self.actions_frame, text='Compress textures',
                                                     command=self.compress_textures, state=tk.DISABLED)
         self.compress_textures_button.pack(fill=tk.X)
@@ -595,6 +599,26 @@ class MainWindow(object):
         
         self.wait_agent()
     
+    def convert_dds_file(self):
+        self.set_children_state(self.win, tk.DISABLED)
+        
+        path = filedialog.askopenfilenames(defaultextension='*.dds', filetypes=(
+            ('DDS texture', '*.dds'),
+        ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
+        title='Choose DDS file to extract')
+        if  path:
+            for file in path:
+                try:
+                    self.agent.convert_dds_file(file)
+                except FileNotFoundError:
+                    messagebox.showerror(title='File not found',
+                                        message=f'Could not find file "{Path(file).name}".')
+                except Exception as e:
+                    messagebox.showerror(title='Could not convert DDS file',
+                                        message=f'Could not extract "{Path(file).name}": "{str(e)}"')
+        
+        self.set_children_state(self.win, tk.NORMAL)
+    
     def compress_textures(self):
         self.set_children_state(self.win, tk.DISABLED)
         
@@ -633,6 +657,7 @@ class MainWindow(object):
             ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
             title='Choose original aircraft configuration file')
             if not path:
+                self.set_children_state(self.win, tk.NORMAL)
                 return
             self.agent.create_aircraft_cfg(path)
             self.origin_entry.load()
@@ -738,6 +763,7 @@ class MainWindow(object):
             ('Package layout', 'layout.json'),
         ), title='Choose layout file to update')
         if not path:
+            self.set_children_state(self.win, tk.NORMAL)
             return
         self.agent.update_layout(path)
         
