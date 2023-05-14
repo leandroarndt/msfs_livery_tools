@@ -1,5 +1,11 @@
 # MSFS Livery Tools changelog
 
+## v1.5
+
+* New action to convert selected DDS files to PNG.
+  * **Attention:** converting selected DDS files to PNG copies the respective `.FLAGS`
+  file.
+
 ## v1.4
 
 * Prevents duplicating the airplane folder (which caused different liveries to overlap).
