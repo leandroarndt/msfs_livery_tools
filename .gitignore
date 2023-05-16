@@ -163,5 +163,7 @@ cython_debug/
 teste/*
 */teste/*
 .vscode/*
-MSFS_Livery_Tools.exe
 wiki/*
+MSFS Livery Tools.zip
+MSFS_Livery_Tools_Installer.exe
+python*embed*.zip
