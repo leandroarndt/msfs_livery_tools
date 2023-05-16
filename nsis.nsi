@@ -7,7 +7,7 @@
 Name 'MSFS Livery Tools'
 
 # define name of installer
-OutFile "MSFS_Livery_Tools.exe"
+OutFile "MSFS_Livery_Tools_Installer.exe"
  
 # define installation directory
 InstallDir "$PROGRAMFILES\MSFS Livery Tools"
@@ -22,7 +22,7 @@ Section
     SetOutPath $INSTDIR
 
     File /r dist\*.*
-    CreateShortcut "$SMPROGRAMS\MSFS Livery Tools.lnk" "$INSTDIR\livery_tools.exe" "" "$INSTDIR\resources\msfs livery tools.ico" 0 SW_SHOWMINIMIZED
+    CreateShortcut "$SMPROGRAMS\MSFS Livery Tools.lnk" "$INSTDIR\MSFS Livery Tools.bat" "" "$INSTDIR\resources\msfs livery tools.ico" 0 SW_SHOWMINIMIZED
  
     # create the uninstaller
     WriteUninstaller "$INSTDIR\uninstall.exe"
