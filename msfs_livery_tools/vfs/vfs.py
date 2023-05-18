@@ -164,16 +164,27 @@ class VFS(_VFSContainer, object):
     def _ne__(self, other):
         return self.package_folder != other.package_folder
     
-    def scan(self, include_extra=[], include_all:bool=False, queue:Queue=None):
+    def scan(self, include_extra=[], include_all:bool=False, queue:Queue=None, depth:int=3):
         self.contents = {} # Resets prior to scan
+        print('Searching MSFS packages…')
         if isinstance(queue, Queue):
-            queue.put('Loading MSFS packages…')
-        if include_all:
-            packages = list(self.package_folder.glob('**/layout.json'))
+            queue.put('Searching MSFS packages…')
+        if depth < 0:
+            if include_all:
+                packages = list(self.package_folder.glob('**/layout.json'))
+            else:
+                packages = list((self.package_folder / 'Official').glob('**/layout.json')) + list((self.package_folder / 'Community').glob('**/layout.json'))
+            for extra in include_extra:
+                packages += list(Path(extra).glob('**/layout.json'))
         else:
-            packages = list((self.package_folder / 'Official').glob('**/layout.json')) + list((self.package_folder / 'Community').glob('**/layout.json'))
-        for extra in include_extra:
-            packages += list(Path(extra).glob('**/layout.json'))
+            packages = []
+            for level in range(depth+1):
+                if level == 0 and include_all:
+                    packages += list(self.package_folder.glob('./' + '*/' * level + '/layout.json'))
+                elif level > 0:
+                    packages += list(self.package_folder.glob('Official/' + '*/' * (level - 1) + '/layout.json')) + list(self.package_folder.glob('Community/' + '*/' * (level - 1) + '/layout.json'))
+                for extra in include_extra:
+                    packages += list(Path(extra).glob('./' + '*/' * level + '/layout.json'))
         for package in packages:
             print(f'Adding {package.parent.name} into VFS root…')
             if isinstance(queue, Queue):
