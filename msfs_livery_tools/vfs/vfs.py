@@ -145,13 +145,13 @@ class VFS(_VFSContainer, object):
     name = 'VFS root'
     
     @classmethod
-    def new(cls, package_folder:str|Path, include_extra=[], include_all:bool=False, queue=None):
+    def new(cls, package_folder:str|Path, include_extra=[], include_all:bool=False, queue=None, depth:int=3):
         
         if cls._instance is None:
             cls._instance = cls()
             cls._instance.package_folder = Path(package_folder)
             cls._instance.contents = {}
-            cls._instance.scan(include_extra, include_all, queue)
+            cls._instance.scan(include_extra, include_all, queue, depth)
         
         return cls._instance
     
@@ -179,16 +179,16 @@ class VFS(_VFSContainer, object):
         else:
             packages = []
             for level in range(depth+1):
-                if level == 0 and include_all:
-                    packages += list(self.package_folder.glob('./' + '*/' * level + '/layout.json'))
-                elif level > 0:
-                    packages += list(self.package_folder.glob('Official/' + '*/' * (level - 1) + '/layout.json')) + list(self.package_folder.glob('Community/' + '*/' * (level - 1) + '/layout.json'))
+                if include_all:
+                    packages += list(self.package_folder.glob('./' + '*/' * level + 'layout.json'))
+                elif level > 0: # Includes steam folder under "Official" if depth >= 2
+                    packages += list(self.package_folder.glob('Official/' + '*/' * (level - 1) + 'layout.json')) + list(self.package_folder.glob('Community/' + '*/' * (level - 1) + 'layout.json'))
                 for extra in include_extra:
-                    packages += list(Path(extra).glob('./' + '*/' * level + '/layout.json'))
+                    packages += list(Path(extra).glob('./' + '*/' * level + 'layout.json'))
         for package in packages:
-            print(f'Adding {package.parent.name} into VFS root…')
+            print(f'Adding {package.parent.name} to VFS root…')
             if isinstance(queue, Queue):
                 if not queue.empty():
                     queue.get(block=False)
-                queue.put(f'Adding {package.parent.name} into VFS root…')
+                queue.put(f'Adding {package.parent.name} to VFS root…')
             VFSFolder.scan_layout(package, self)
