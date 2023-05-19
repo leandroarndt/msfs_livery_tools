@@ -30,6 +30,17 @@ class AppSettings(object):
         __class__._config_parser['PACKAGES']['scan_all_folders'] = str(value)
     
     @property
+    def scan_depth(self)->int:
+        try:
+            return int(__class__._config_parser['PACKAGES']['scan_depth'])
+        except (KeyError, ValueError):
+            return 3
+    
+    @scan_depth.setter
+    def scan_depth(self, value:int):
+        __class__._config_parser['PACKAGES']['scan_depth'] = str(value)
+    
+    @property
     def use_fallbacks(self)->bool:
         try:
             return True if __class__._config_parser['TEXTURES']['use_fallbacks'] == 'True' else False
