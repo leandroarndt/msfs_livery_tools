@@ -15,7 +15,6 @@ class AppSettings(object):
 
     @msfs_package_path.setter
     def msfs_package_path(self, path:str):
-        print(path)
         __class__._config_parser['PACKAGES']['msfs_package_path'] = path
     
     @property

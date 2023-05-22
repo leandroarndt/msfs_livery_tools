@@ -19,6 +19,10 @@ class SettingsWindow(object):
     msfs_packages_frame = helpers.PathChooser
     scan_all_folders_var:tk.BooleanVar
     scan_all_folders_button:tk.Checkbutton
+    scan_depth_frame:ttk.Frame
+    scan_depth_label:ttk.Label
+    scan_depth_var:tk.StringVar
+    scan_depth_spinbox:ttk.Spinbox
     use_fallbacks_var:tk.BooleanVar
     use_fallbacks_button:ttk.Checkbutton
     compress_on_build_var:tk.BooleanVar
@@ -56,6 +60,13 @@ class SettingsWindow(object):
                                                         text='Scan all folders under package path',
                                                         variable=self.scan_all_folders_var)
         self.scan_all_folders_button.pack(side=tk.TOP, fill=tk.X)
+        self.scan_depth_frame = ttk.Frame(self.packages_frame)
+        self.scan_depth_frame.pack(side=tk.TOP, fill=tk.X)
+        self.scan_depth_label = ttk.Label(self.scan_depth_frame, text='Package search depth ("-1" for unlimited): ')
+        self.scan_depth_label.pack(side=tk.LEFT)
+        self.scan_depth_var = tk.StringVar(self.win, value=str(self.settings.scan_depth))
+        self.scan_depth_spinbox = ttk.Spinbox(self.scan_depth_frame, from_=-1, to=10, textvariable=self.scan_depth_var)
+        self.scan_depth_spinbox.pack(side=tk.LEFT)
         
         # Texture settings
         self.texture_frame = ttk.LabelFrame(self.settings_frame, text='Build settings', padding=5)
@@ -115,6 +126,7 @@ class SettingsWindow(object):
         self.settings.scan_all_folders = self.scan_all_folders_var.get()
         self.settings.compress_textures_on_build = self.compress_on_build_var.get()
         self.settings.texconv_path = self.texconv_frame.value.get()
+        self.settings.scan_depth = int(self.scan_depth_var.get())
         self.settings.save()
         self.win.grab_release()
         self.win.destroy()
