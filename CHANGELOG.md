@@ -6,6 +6,10 @@
   * **Attention:** converting selected DDS files to PNG copies the respective `.FLAGS`
   file.
 
+### v1.5.1
+
+* Reduced start up time with limited scan depth (new setting available)..
+
 ## v1.4
 
 * Prevents duplicating the airplane folder (which caused different liveries to overlap).
