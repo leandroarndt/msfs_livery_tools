@@ -34,7 +34,7 @@ if __name__ == '__main__':
     
     print(f'Copying packages from "{site_packages}":')
     for package in site_packages.iterdir():
-        if 'pip' not in package.name and package.suffix != '.dist-info':
+        if 'pip' not in package.name:
             print(f'Copying package "{package.name}".')
             shutil.copytree(package, dest / package.name)
     
