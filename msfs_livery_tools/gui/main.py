@@ -12,6 +12,7 @@ from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
+from msfs_livery_tools.gltf import uv_map
 from . import styles, helpers, settings, actions, about, splash, package_scanner
 import __main__
 
@@ -32,6 +33,7 @@ class MainWindow(object):
     file_menu:tk.Menu
     recent_menu:tk.Menu
     edit_menu:tk.Menu
+    tools_menu:tk.Menu
     help_menu:tk.Menu
     
     # Toolbar
@@ -153,6 +155,9 @@ class MainWindow(object):
         self.edit_menu.add_command(label='Settings', command=self.settings, underline=0)
         self.edit_menu.add_command(label='Reload MSFS packages', command=self.reload_vfs, underline=0)
         self.menu.add_cascade(label='Edit', underline=0, menu=self.edit_menu)
+        self.tools_menu = tk.Menu(self.menu, tearoff=0)
+        self.tools_menu.add_command(label='Create texture UV map…', command=self.create_uv_map, underline=15)
+        self.menu.add_cascade(label='Tools', underline=0, menu=self.tools_menu)
         self.help_menu = tk.Menu(self.menu, tearoff=0)
         self.help_menu.add_command(label='Online manual',
             command = lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki'),
@@ -552,6 +557,28 @@ class MainWindow(object):
         
         while self.monitor_scanner(scanner):
             time.sleep(1/30)
+        
+        self.set_children_state(self.win, tk.NORMAL)
+    
+    def create_uv_map(self):
+        self.set_children_state(self.win, state=tk.DISABLED)
+        
+        dest = filedialog.askdirectory(mustexist=True, title='Choose texture map destination path')
+        if not dest:
+            return
+        texture_file = filedialog.askopenfilename(defaultextension='*.DDS', filetypes=(
+            ('*.DDS', 'Compressed texture'),
+            ('*.png', 'PNG image'),
+        ), title='Choose texture file')
+        if not texture_file:
+            return
+        model_file = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
+            ('*.gltf', 'glTF model'),
+        ))
+        if not model_file:
+            return
+        
+        uv_map.draw_uv_layers_for_texture(dest, texture_file, model_file)
         
         self.set_children_state(self.win, tk.NORMAL)
     
