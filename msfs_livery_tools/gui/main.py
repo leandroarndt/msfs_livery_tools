@@ -1,5 +1,5 @@
 """Main application window"""
-import shutil, time
+import shutil, time, threading
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -579,7 +579,27 @@ class MainWindow(object):
         if not model_file:
             return
         
-        uv_map.draw_uv_layers_for_texture(dest, texture_file, model_file)
+        self.progress_bar['mode'] = 'indeterminate'
+        self.progress_bar.start(30 // 1000)
+        thread = threading.Thread(target=uv_map.draw_uv_layers_for_texture, kwargs={
+            'dest': dest,
+            'texture_file': texture_file,
+            'model_file': model_file,
+        })
+        thread.start()
+        while thread.is_alive():
+            # For some reason, update() freezes and update_idletasks() does not work
+            # self.win.update_idletasks()
+            # self.progress_bar.update_idletasks()
+            time.sleep(1/30)
+        self.progress_bar.stop()
+        self.progress_bar['mode'] = 'determinate'
+        
+        if messagebox.askyesno(
+            title='Done creating UV maps',
+            message='Texture maps created. Open destination folder?'
+        ):
+            webbrowser.open('file:///' + dest)
         
         self.set_children_state(self.win, tk.NORMAL)
     
