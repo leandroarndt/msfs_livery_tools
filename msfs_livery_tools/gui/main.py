@@ -566,15 +566,16 @@ class MainWindow(object):
         dest = filedialog.askdirectory(mustexist=True, title='Choose texture map destination path')
         if not dest:
             return
-        texture_file = filedialog.askopenfilename(defaultextension='*.DDS', filetypes=(
-            ('*.DDS', 'Compressed texture'),
-            ('*.png', 'PNG image'),
+        texture_file = filedialog.askopenfilename(defaultextension='*.DDS *.png', filetypes=(
+            ('Texture files', '*.DDS *.png'),
+            ('Compressed texture', '*.DDS'),
+            ('PNG image', '*.png'),
         ), title='Choose texture file')
         if not texture_file:
             return
         model_file = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
-            ('*.gltf', 'glTF model'),
-        ))
+            ('glTF model', '*.gltf'),
+        ), title='Choose model file')
         if not model_file:
             return
         
