@@ -1,5 +1,10 @@
 # MSFS Livery Tools changelog
 
+## v1.6
+
+* Create texture UV maps.
+* Added "Tools" menu.
+
 ## v1.5
 
 * New action to convert selected DDS files to PNG.

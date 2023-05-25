@@ -12,8 +12,8 @@ URL = 'https://github.com/leandroarndt/msfs_livery_tools'
 ABOUT = 'MSFS Livery Tools automates all bureaucratic tasks of MSFS 2020 livery creation.'
 YOUTUBE = 'https://youtube.com/@fswt'
 VERSION = 1
-SUBVERSION = 5
-REVISION = 1
+SUBVERSION = 6
+REVISION = 0
 
 if __name__ == '__main__':
     app = main.MainWindow()
