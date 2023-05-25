@@ -42,6 +42,21 @@ def material_with_image_name(model:Gltf, name:str)->list[int]:
                 material_list.append(i)
         except AttributeError:
             pass
+        try:
+            if material.pbr_metallic_roughness.metallicRoughnessTexture.index in texture_list:
+                material_list.append(i)
+        except AttributeError:
+            pass
+        try:
+            if material.pbr_metallic_roughness.occlusion_texture.index in texture_list:
+                material_list.append(i)
+        except AttributeError:
+            pass
+        try:
+            if material.pbr_metallic_roughness.emissive_texture.index in texture_list:
+                material_list.append(i)
+        except AttributeError:
+            pass
     
     return material_list
 
