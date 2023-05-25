@@ -62,8 +62,8 @@ def draw_uv_map(image:Image, model:glTFImporter, primitive:MeshPrimitive,
             component_size = 65535
             displacement = 0
         case 5126:
-            component_size = 3.4028235e+38 * 2
-            displacement = 0.5
+            component_size = 1
+            displacement = 0
     
     if 'ASOBO_primitive' in primitive.extras.keys():
         # MSFS compiles to 5122 (int), but uses 5126 (float16) as it should be
