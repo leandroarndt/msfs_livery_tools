@@ -2,7 +2,9 @@ from pathlib import Path
 from gltf_python_io.imp.gltf2_io_binary import BinaryData
 from gltf_python_io.imp.gltf2_io_gltf import glTFImporter
 from gltf_python_io.com.gltf2_io import MeshPrimitive, Accessor
+from gltf_python_io.com.gltf2_io_constants import ComponentType
 from PIL import Image, ImageDraw
+import numpy
 from . import search_image
 
 def draw_uv_map(image:Image, model:glTFImporter, primitive:MeshPrimitive,
@@ -63,6 +65,22 @@ def draw_uv_map(image:Image, model:glTFImporter, primitive:MeshPrimitive,
             component_size = 3.4028235e+38 * 2
             displacement = 0.5
     
+    # MSFS compiles to 5122 (int), but uses 5126 (float16) as it should be
+    component_size = 1
+    displacement = 0
+    # Hack component type
+    to_type_code = ComponentType.to_type_code
+    def type_code(*args, **kwargs):
+        return 'e'
+    ComponentType.to_type_code = type_code
+    to_numpy_dtype = ComponentType.to_numpy_dtype
+    def numpy_dtype(*args, **kwargs):
+        return numpy.float16
+    ComponentType.to_numpy_dtype = numpy_dtype
+    tc = BinaryData.decode_accessor_obj(model, model.data.accessors[primitive.attributes[f'TEXCOORD_{tc_map}']])
+    ComponentType.to_type_code = to_type_code
+    ComponentType.to_numpy_dtype = to_numpy_dtype
+    
     ratio = image.size[0] / component_size
     
     draw = ImageDraw.Draw(image)
@@ -86,3 +104,28 @@ def draw_uv_on_texture(file:str|Path, model:glTFImporter, fill=(127,127,127,127)
     draw_uv_for_texture(image, file.name, model, fill, outline, tc_map)
     
     return image
+
+def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:str|Path, fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0):
+    dest = Path(dest)
+    base_name = Path(texture_file)
+    while ('.' in base_name.name):
+        base_name = Path(base_name).with_suffix('')
+    base_name = base_name.name
+    texture_file = Path(texture_file)
+    texture_name = texture_file.with_suffix('.DDS').name
+    texture_image = Image.open(texture_file)
+    model_file = Path(model_file)
+    model = glTFImporter(model_file, {'import_user_extensions': []})
+    model.read()
+    
+    print(f'Unwrapping textures for {texture_name}.')
+    i = 0
+    for mesh, primitives in search_image.mesh_primitive_with_image_name(model, texture_name).items():
+        for primitive in primitives:
+            print(dest)
+            file = dest / f'{base_name} - {i} - {model.data.meshes[mesh].name}.png'
+            uv_image = Image.new('RGBA', size=texture_image.size, color=(0,0,0,0))
+            draw_uv_map(uv_image, model, model.data.meshes[mesh].primitives[primitive], fill, outline, tc_map)
+            print(f'Saving {file}.')
+            uv_image.save(file)
+            i += 1
