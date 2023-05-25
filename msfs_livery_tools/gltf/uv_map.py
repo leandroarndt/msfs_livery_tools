@@ -65,21 +65,22 @@ def draw_uv_map(image:Image, model:glTFImporter, primitive:MeshPrimitive,
             component_size = 3.4028235e+38 * 2
             displacement = 0.5
     
-    # MSFS compiles to 5122 (int), but uses 5126 (float16) as it should be
-    component_size = 1
-    displacement = 0
-    # Hack component type
-    to_type_code = ComponentType.to_type_code
-    def type_code(*args, **kwargs):
-        return 'e'
-    ComponentType.to_type_code = type_code
-    to_numpy_dtype = ComponentType.to_numpy_dtype
-    def numpy_dtype(*args, **kwargs):
-        return numpy.float16
-    ComponentType.to_numpy_dtype = numpy_dtype
-    tc = BinaryData.decode_accessor_obj(model, model.data.accessors[primitive.attributes[f'TEXCOORD_{tc_map}']])
-    ComponentType.to_type_code = to_type_code
-    ComponentType.to_numpy_dtype = to_numpy_dtype
+    if 'ASOBO_primitive' in primitive.extras.keys():
+        # MSFS compiles to 5122 (int), but uses 5126 (float16) as it should be
+        component_size = 1
+        displacement = 0
+        # Hack component type
+        to_type_code = ComponentType.to_type_code
+        def type_code(*args, **kwargs):
+            return 'e'
+        ComponentType.to_type_code = type_code
+        to_numpy_dtype = ComponentType.to_numpy_dtype
+        def numpy_dtype(*args, **kwargs):
+            return numpy.float16
+        ComponentType.to_numpy_dtype = numpy_dtype
+        tc = BinaryData.decode_accessor_obj(model, model.data.accessors[primitive.attributes[f'TEXCOORD_{tc_map}']])
+        ComponentType.to_type_code = to_type_code
+        ComponentType.to_numpy_dtype = to_numpy_dtype
     
     ratio = image.size[0] / component_size
     
@@ -122,7 +123,6 @@ def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:
     i = 0
     for mesh, primitives in search_image.mesh_primitive_with_image_name(model, texture_name).items():
         for primitive in primitives:
-            print(dest)
             file = dest / f'{base_name} - {i} - {model.data.meshes[mesh].name}.png'
             uv_image = Image.new('RGBA', size=texture_image.size, color=(0,0,0,0))
             draw_uv_map(uv_image, model, model.data.meshes[mesh].primitives[primitive], fill, outline, tc_map)
