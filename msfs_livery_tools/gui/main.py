@@ -18,9 +18,14 @@ import __main__
 
 def needs_texconv(func):
     def wrapper(*args, **kwargs):
-        if not AppSettings().texconv_path:
+        texconv = Path(AppSettings().texconv_path)
+        if not texconv:
             messagebox.showerror(title='Texconv path not set',
-                    message='"Texconv.exe" path has not been set. Please inform it at "Edit"->"Settings".')
+                message='"Texconv.exe" path has not been set. Please inform it at "Edit"->"Settings".')
+            return
+        if not texconv.is_file():
+            messagebox.showerror(title='Texconv not found',
+                message=f'"Texconv.exe" could not be found at "{texconv}". Please correct it at application settings.')
             return
         return func(*args, **kwargs)
     return wrapper
