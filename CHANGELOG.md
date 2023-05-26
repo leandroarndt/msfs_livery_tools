@@ -5,6 +5,10 @@
 * Create texture UV maps.
 * Added "Tools" menu.
 
+### v1.6.1
+
+* Added check for "texconv.exe" path before executing actions that need this setting.
+
 ## v1.5
 
 * New action to convert selected DDS files to PNG.
