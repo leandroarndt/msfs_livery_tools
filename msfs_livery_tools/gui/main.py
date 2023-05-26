@@ -750,7 +750,8 @@ class MainWindow(object):
             ('Panel configuration', 'panel.cfg'),
         ), initialdir=Path(self.origin_entry.value.get(), 'SimObjects', 'Airplanes', self.base_container_frame.value.get()[3:]),
         title='Choose original panel configuration file')
-        self.agent.copy_panel(path)
+        if path:
+            self.agent.copy_panel(path)
         
         self.set_children_state(self.win, tk.NORMAL)
     
@@ -789,6 +790,24 @@ class MainWindow(object):
         self.set_children_state(self.win, tk.NORMAL)
     
     def pack_livery(self): # Complex
+        if not self.app_settings.texconv_path:
+            proceed = messagebox.askokcancel(title='Texconv path not configured',
+                message='Path to "texconv.exe" was not set. You won\'t be able to compress textures to DDS. Proceed?')
+            if not proceed:
+                return
+        elif not Path(self.app_settings.texconv_path).is_file():
+            proceed = messagebox.askokcancel(title='Texconv path improperly configured',
+                message=f'"Texconv.exe" could not be found at "{self.app_settings.texconv_path}". You won\'t be able to compress textures to DDS. Proceed?')
+            if not proceed:
+                return
+        
+        try:
+            self.project.airplane_folder
+        except KeyError:
+            messagebox.showerror(title='Airplane folder not set',
+                message='Please, configure an airplane folder before proceeding.')
+            return
+        
         # Prepare window
         self.set_children_state(self.win, tk.DISABLED)
         
