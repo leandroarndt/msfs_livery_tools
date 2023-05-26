@@ -16,6 +16,15 @@ from msfs_livery_tools.gltf import uv_map
 from . import styles, helpers, settings, actions, about, splash, package_scanner
 import __main__
 
+def needs_texconv(func):
+    def wrapper(*args, **kwargs):
+        if not AppSettings().texconv_path:
+            messagebox.showerror(title='Texconv path not set',
+                    message='"Texconv.exe" path has not been set. Please inform it at "Edit"->"Settings".')
+            return
+        return func(*args, **kwargs)
+    return wrapper
+
 class MainWindow(object):
     project:Project = None
     app_settings:AppSettings
@@ -631,6 +640,7 @@ class MainWindow(object):
         else:
             self.set_children_state(self.win, tk.NORMAL)
     
+    @needs_texconv
     def extract_textures(self):
         self.set_children_state(self.win, tk.DISABLED)
         
@@ -647,6 +657,7 @@ class MainWindow(object):
         
         self.wait_agent()
     
+    @needs_texconv
     def convert_dds_file(self):
         self.set_children_state(self.win, tk.DISABLED)
         
@@ -667,6 +678,7 @@ class MainWindow(object):
         
         self.set_children_state(self.win, tk.NORMAL)
     
+    @needs_texconv
     def compress_textures(self):
         self.set_children_state(self.win, tk.DISABLED)
         
