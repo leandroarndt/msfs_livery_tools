@@ -8,6 +8,8 @@
 ### v1.6.1
 
 * Added check for "texconv.exe" path before executing actions that need this setting.
+* Cancels panel copy on "cancel" button at file dialog.
+* Checks if the airplane folder has been configured before packing.
 
 ## v1.5
 
