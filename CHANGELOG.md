@@ -11,6 +11,11 @@
 * Cancels panel copy on "cancel" button at file dialog.
 * Checks if the airplane folder has been configured before packing.
 
+### v1.6.2
+
+* Corrected DDS descriptor creation routine.
+* Does not overwrite DDS descriptors anymore (editions on them will now be reflected on the final package).
+
 ## v1.5
 
 * New action to convert selected DDS files to PNG.
