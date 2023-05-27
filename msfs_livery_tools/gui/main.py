@@ -694,7 +694,13 @@ class MainWindow(object):
     def dds_json(self):
         self.set_children_state(self.win, tk.DISABLED)
         
-        self.agent.create_dds_descriptors()
+        try:
+            self.agent.create_dds_descriptors()
+        except FileNotFoundError:
+            messagebox.showinfo(
+                'Compressed textures not found',
+                message='Could not find any .DDS file. Please, compress your textures before creating descriptors!'
+            )
         
         self.set_children_state(self.win, tk.NORMAL)
     

@@ -196,7 +196,7 @@ class Agent(object):
                 try:
                     descriptor = texture_dir.find(texture.stem + '.DDS.json', fallbacks=fallbacks)
                     self._copy(descriptor.real_path(), self._texture_dir())
-                    print(f'Copied texture descriptor for "{descriptor.file.name}".')
+                    print(f'Copied texture descriptor for "{texture.stem + ".DDS"}".')
                 except FileNotFoundError:
                     print(f'Could not find original descriptor for "{texture.stem + ".DDS"}".')
             else:
@@ -242,6 +242,8 @@ class Agent(object):
                 print(f'Describing "{file}"…')
                 dds_json.create_description(file)
         self.restore_progress_bar()
+        if not textures:
+            raise FileNotFoundError
     
     def create_texture_cfg(self, original:str|None=None):
         cfg = configparser.ConfigParser()
