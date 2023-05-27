@@ -15,6 +15,7 @@
 
 * Corrected DDS descriptor creation routine.
 * Does not overwrite DDS descriptors anymore (editions on them will now be reflected on the final package).
+* Copies DDS descriptors when extracting textures.
 
 ## v1.5
 
