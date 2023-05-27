@@ -237,8 +237,10 @@ class Agent(object):
         for file in textures:
             self.progress_bar['value'] += 1
             self.progress_bar.update()
-            print(f'Describing "{file}"…')
-            dds_json.create_description(file)
+            exists = (file.parent / (file.name + '.json')).is_file()
+            if not (file.parent / (file.name + '.json')).is_file():
+                print(f'Describing "{file}"…')
+                dds_json.create_description(file)
         self.restore_progress_bar()
     
     def create_texture_cfg(self, original:str|None=None):
