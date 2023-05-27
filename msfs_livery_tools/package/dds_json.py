@@ -32,7 +32,7 @@ def create_description(dds_file:str, use=Uses.Unknown, alpha=None):
         alpha (bool or None): override default transparency info.
     """
     if use == Uses.Unknown:
-        name = Path(dds_file).name
+        name = Path(dds_file).name.upper()
         for u in Uses:
             for n in u.value.names:
                 if n in name:
