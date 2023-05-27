@@ -110,6 +110,8 @@ class Agent(object):
         self.monitor(thread)
     
     def _do_extract_textures(self, gltf:str|Path, vfs:VFS):
+        descriptor:VFSFile
+        
         # Prepare path variables
         gltf = Path(gltf)
         original_suffix = gltf.parent.suffix
@@ -176,8 +178,8 @@ class Agent(object):
             time.sleep(1/30)
         
         # Get rid of unneeded flags
+        png_list = list(output_dir.glob('*.png'))
         for flag in flags:
-            png_list = list(output_dir.glob('*.png'))
             f = output_dir / Path(Path(Path(flag).stem).stem + '.png')
             if output_dir / Path(Path(Path(flag).stem).stem + '.png') not in png_list:
                 print(f'Unlink "{flag}"!')
@@ -185,6 +187,24 @@ class Agent(object):
                     (output_dir / flag).unlink()
                 except:
                     pass
+        
+        # Copy JSON texture descriptors
+        print('Copying texture descriptors.')
+        for texture in png_list:
+            if isinstance(texture_dir, VFSFolder):
+                # if texture.name.lower().startswith('glass_') or texture.name.lower().startswith('frost_'):
+                try:
+                    descriptor = texture_dir.find(texture.stem + '.DDS.json', fallbacks=fallbacks)
+                    self._copy(descriptor.real_path(), self._texture_dir())
+                    print(f'Copied texture descriptor for "{descriptor.file.name}".')
+                except FileNotFoundError:
+                    print(f'Could not find original descriptor for "{texture.stem + ".DDS"}".')
+            else:
+                try:
+                    self._copy(texture_dir / (texture.stem + '.DDS.json'), self._texture_dir())
+                    print(f'Copied texture descriptor for "{texture.stem + ".DDS"}".')
+                except FileNotFoundError:
+                    print(f'Could not find original descriptor for "{texture.stem + ".DDS"}".')
     
     def convert_dds_file(self, path:Path|str, copy_flags:bool=True):
         path = Path(path)
