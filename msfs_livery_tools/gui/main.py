@@ -545,7 +545,7 @@ class MainWindow(object):
         return lambda: self.open_project(file)
     
     def build_recent_menu(self)->tk.Menu:
-        menu = tk.Menu(self.file_menu)
+        menu = tk.Menu(self.file_menu, tearoff=0)
         recent = self.app_settings.recent_files
         if len(recent) == 0:
             menu.add_command(label='(Empty)', state=tk.DISABLED)
