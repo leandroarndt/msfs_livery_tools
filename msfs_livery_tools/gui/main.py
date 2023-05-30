@@ -579,6 +579,7 @@ class MainWindow(object):
         
         dest = filedialog.askdirectory(mustexist=True, title='Choose texture map destination path')
         if not dest:
+            self.set_children_state(self.win, tk.NORMAL)
             return
         texture_file = filedialog.askopenfilename(defaultextension='*.DDS *.png', filetypes=(
             ('Texture files', '*.DDS *.png'),
@@ -586,11 +587,13 @@ class MainWindow(object):
             ('PNG image', '*.png'),
         ), title='Choose texture file')
         if not texture_file:
+            self.set_children_state(self.win, tk.NORMAL)
             return
         model_file = filedialog.askopenfilename(defaultextension='*.gltf', filetypes=(
             ('glTF model', '*.gltf'),
         ), title='Choose model file')
         if not model_file:
+            self.set_children_state(self.win, tk.NORMAL)
             return
         
         self.progress_bar['mode'] = 'indeterminate'
