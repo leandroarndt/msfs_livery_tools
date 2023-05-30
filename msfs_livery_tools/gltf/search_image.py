@@ -1,3 +1,4 @@
+from pathlib import Path
 from gltf_python_io.com.gltf2_io import Gltf, MeshPrimitive, Mesh, Material, Texture, Image
 
 def importer_aware(func):
@@ -13,7 +14,7 @@ def image_with_name(model:Gltf, name:str)->list[int]:
     
     image_list = []
     for i, image in enumerate(model.images):
-        if image.uri.lower() == name.lower():
+        if Path(image.uri.lower()).name == Path(name.lower()).name:
             image_list.append(i)
     
     return image_list
