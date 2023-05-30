@@ -17,6 +17,11 @@
 * Does not overwrite DDS descriptors anymore (editions on them will now be reflected on the final package).
 * Copies DDS descriptors when extracting textures.
 
+### v1.6.3
+
+* Can deal with bogus "texture.cfg" (with non-existent folders) and glTF (with path components on image URI) like Asobo F/A-18.
+* Corrected interface restoration after canceled texture map creation or when there is no open project.
+
 ## v1.5
 
 * New action to convert selected DDS files to PNG.
