@@ -609,11 +609,14 @@ class MainWindow(object):
             'texture_file': texture_file,
             'model_file': model_file,
         })
-        while task.running():
-            # For some reason, update() and update_idletasks() freeze
-            # self.win.update_idletasks()
-            # self.win.update()
-            time.sleep(1/30)
+        
+        def monitor():
+            if task.running():
+                # For some reason, update() and update_idletasks() freeze
+                # self.win.update_idletasks()
+                # self.win.update()
+                self.win.after(1000/30, monitor)
+        monitor()
         self.progress_bar.stop()
         self.progress_bar['mode'] = 'determinate'
         
