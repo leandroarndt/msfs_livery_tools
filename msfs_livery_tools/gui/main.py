@@ -421,7 +421,7 @@ class MainWindow(object):
             self.win.title(f'MSFS Livery Tools - {Path(self.project.file).parent.name}')
     
     def set_children_state(self, parent, state:str=tk.NORMAL):
-        if parent != self.win or self.project:
+        if state == tk.DISABLED or self.project or parent != self.win:
             for key, child in parent.children.items():
                 if hasattr(child, 'state'):
                     try:
@@ -430,8 +430,9 @@ class MainWindow(object):
                         pass
                 if hasattr(child, 'children'):
                     self.set_children_state(child, state)
-        else:
+        elif state == tk.NORMAL and parent == self.win:
             self.set_children_state(self.toolbar_frame, tk.NORMAL)
+            self.update_layout_button['state'] = tk.NORMAL
         if parent == self.win:
             if state == tk.NORMAL:
                 self.gui_disabled = False
@@ -446,7 +447,7 @@ class MainWindow(object):
                 self.menu.entryconfig(0, state=tk.DISABLED)
                 self.menu.entryconfig(1, state=tk.DISABLED)
                 self.menu.entryconfig(2, state=tk.DISABLED)
-            self.win.update()
+        self.win.update()
     
     # Menu/Toolbar methods
     def new_project(self):
