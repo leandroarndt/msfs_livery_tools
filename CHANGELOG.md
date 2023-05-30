@@ -5,11 +5,15 @@
 * Create texture UV maps.
 * Added "Tools" menu.
 
-### v1.6.1
+### v1.6.4
 
-* Added check for "texconv.exe" path before executing actions that need this setting.
-* Cancels panel copy on "cancel" button at file dialog.
-* Checks if the airplane folder has been configured before packing.
+* Texture map creator can deal with path components on image URIs too.
+* Better messaging after UV maps creation.
+
+### v1.6.3
+
+* Can deal with bogus "texture.cfg" (with non-existent folders) and glTF (with path components on image URI) like Asobo F/A-18.
+* Corrected interface restoration after canceled texture map creation or when there is no open project.
 
 ### v1.6.2
 
@@ -17,10 +21,11 @@
 * Does not overwrite DDS descriptors anymore (editions on them will now be reflected on the final package).
 * Copies DDS descriptors when extracting textures.
 
-### v1.6.3
+### v1.6.1
 
-* Can deal with bogus "texture.cfg" (with non-existent folders) and glTF (with path components on image URI) like Asobo F/A-18.
-* Corrected interface restoration after canceled texture map creation or when there is no open project.
+* Added check for "texconv.exe" path before executing actions that need this setting.
+* Cancels panel copy on "cancel" button at file dialog.
+* Checks if the airplane folder has been configured before packing.
 
 ## v1.5
 
