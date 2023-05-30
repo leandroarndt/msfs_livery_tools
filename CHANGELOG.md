@@ -9,6 +9,7 @@
 
 * Texture map creator can deal with path components on image URIs too.
 * Better messaging after UV maps creation.
+* Texture map creator now runs on a separate process with a different window.
 
 ### v1.6.3
 
