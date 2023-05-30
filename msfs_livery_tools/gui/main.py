@@ -421,14 +421,17 @@ class MainWindow(object):
             self.win.title(f'MSFS Livery Tools - {Path(self.project.file).parent.name}')
     
     def set_children_state(self, parent, state:str=tk.NORMAL):
-        for key, child in parent.children.items():
-            if hasattr(child, 'state'):
-                try:
-                    child['state'] = state
-                except tk.TclError:
-                    pass
-            if hasattr(child, 'children'):
-                self.set_children_state(child, state)
+        if parent != self.win or self.project:
+            for key, child in parent.children.items():
+                if hasattr(child, 'state'):
+                    try:
+                        child['state'] = state
+                    except tk.TclError:
+                        pass
+                if hasattr(child, 'children'):
+                    self.set_children_state(child, state)
+        else:
+            self.set_children_state(self.toolbar_frame, tk.NORMAL)
         if parent == self.win:
             if state == tk.NORMAL:
                 self.gui_disabled = False
