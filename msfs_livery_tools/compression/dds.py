@@ -29,7 +29,7 @@ def from_glft(input_gltf:str|Path, input_dir:str|Path|VFSFolder, output_dir:str|
                 convert(Path(input_dir) / image['uri'], output_dir, texconv_path, out_format)
             else:
                 try:
-                    convert(input_dir.find(image['uri'], fallbacks=fallbacks).real_path(),
+                    convert(input_dir.find(Path(image['uri']).name, fallbacks=fallbacks).real_path(),
                             output_dir, texconv_path, out_format)
                 except FileNotFoundError:
                     pass

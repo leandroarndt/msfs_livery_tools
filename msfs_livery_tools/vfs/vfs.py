@@ -43,7 +43,10 @@ class _VFSContainer:
                 return self.parent.navigate(sep.join(parts))
             if parts:
                 return self.contents[next_part.lower()].navigate(sep.join(parts))
-            return self.contents[next_part]
+            try:
+                return self.contents[next_part.lower()]
+            except KeyError:
+                raise FileNotFoundError
         return self
     
     def find(self, file_name:str, fallbacks:list[str])->Path:
