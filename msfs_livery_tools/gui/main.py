@@ -14,7 +14,7 @@ from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
 from msfs_livery_tools.gltf import uv_map
-from . import styles, helpers, settings, actions, about, splash, package_scanner
+from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window
 import __main__
 
 def needs_texconv(func):
@@ -601,39 +601,33 @@ class MainWindow(object):
             self.set_children_state(self.win, tk.NORMAL)
             return
         
-        self.progress_bar['mode'] = 'indeterminate'
-        self.progress_bar.start(30 // 1000)
-        executor = futures.ThreadPoolExecutor()
-        task = executor.submit(uv_map.draw_uv_layers_for_texture, **{
-            'dest': dest,
-            'texture_file': texture_file,
-            'model_file': model_file,
-        })
-        
-        def monitor():
-            if task.running():
-                # For some reason, update() and update_idletasks() freeze
-                # self.win.update_idletasks()
-                # self.win.update()
-                self.win.after(1000/30, monitor)
-        monitor()
-        self.progress_bar.stop()
-        self.progress_bar['mode'] = 'determinate'
-        
-        number = task.result()
-        if number:
-            if messagebox.askyesno(
-                title='Done creating UV maps',
-                message=f'{task.result()} texture maps created. Open destination folder?'
-            ):
-                webbrowser.open('file:///' + dest)
-        else:
-            messagebox.showinfo(
-                title='Could not create UV maps',
-                message=f'Could not create UV maps for texture file "{Path(texture_file).name}" from model "{Path(model_file).name}".'
-            )
-        
         self.set_children_state(self.win, tk.NORMAL)
+        
+        def map_finished(number):
+            if number:
+                if messagebox.askyesno(
+                    title='Done creating UV maps',
+                    message=f'{number} texture maps created. Open destination folder?'
+                ):
+                    webbrowser.open('file:///' + dest)
+            else:
+                messagebox.showinfo(
+                    title='Could not create UV maps',
+                    message=f'Could not create UV maps for texture file "{Path(texture_file).name}" from model "{Path(model_file).name}".'
+                )
+        
+        task_window.TaskWindow(
+            'Extracting texture map',
+            f'Extracting texture map for "{Path(texture_file).name}"',
+            uv_map.draw_uv_layers_for_texture,
+            map_finished,
+            **{
+                'dest': dest,
+                'texture_file': texture_file,
+                'model_file': model_file,
+                'queue': Queue()
+            }
+        )
     
     def about(self):
         about_window = about.About(self.win)
