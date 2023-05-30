@@ -106,7 +106,7 @@ def draw_uv_on_texture(file:str|Path, model:glTFImporter, fill=(127,127,127,127)
     
     return image
 
-def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:str|Path, fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0):
+def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:str|Path, fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0)->int:
     dest = Path(dest)
     base_name = Path(texture_file)
     while ('.' in base_name.name):
@@ -121,7 +121,8 @@ def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:
     
     print(f'Unwrapping textures for {texture_name}.')
     i = 0
-    for mesh, primitives in search_image.mesh_primitive_with_image_name(model, texture_name).items():
+    meshes = search_image.mesh_primitive_with_image_name(model, texture_name).items()
+    for mesh, primitives in meshes:
         for primitive in primitives:
             file = dest / f'{base_name} - {i} - {model.data.meshes[mesh].name}.png'
             uv_image = Image.new('RGBA', size=texture_image.size, color=(0,0,0,0))
@@ -129,3 +130,5 @@ def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:
             print(f'Saving {file}.')
             uv_image.save(file)
             i += 1
+    
+    return len(meshes)
