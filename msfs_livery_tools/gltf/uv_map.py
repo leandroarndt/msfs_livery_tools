@@ -4,6 +4,7 @@ from gltf_python_io.imp.gltf2_io_gltf import glTFImporter
 from gltf_python_io.com.gltf2_io import MeshPrimitive, Accessor
 from gltf_python_io.com.gltf2_io_constants import ComponentType
 from PIL import Image, ImageDraw
+import queue
 import numpy
 from . import search_image
 
@@ -106,7 +107,7 @@ def draw_uv_on_texture(file:str|Path, model:glTFImporter, fill=(127,127,127,127)
     
     return image
 
-def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:str|Path, fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0)->int:
+def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:str|Path, fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0, queue:queue.Queue|None=None)->int:
     dest = Path(dest)
     base_name = Path(texture_file)
     while ('.' in base_name.name):
@@ -127,6 +128,11 @@ def draw_uv_layers_for_texture(dest:str|Path, texture_file:str|Path, model_file:
             file = dest / f'{base_name} - {i} - {model.data.meshes[mesh].name}.png'
             uv_image = Image.new('RGBA', size=texture_image.size, color=(0,0,0,0))
             draw_uv_map(uv_image, model, model.data.meshes[mesh].primitives[primitive], fill, outline, tc_map)
+            if queue:
+                try:
+                    queue.put_nowait(f'Saving "{file.name}".')
+                except:
+                    pass
             print(f'Saving {file}.')
             uv_image.save(file)
             i += 1
