@@ -1,4 +1,5 @@
 import configparser, shutil, time
+from concurrent import futures
 from pathlib import Path, PureWindowsPath
 from tkinter import ttk, filedialog
 from typing import Callable
@@ -81,6 +82,18 @@ class Agent(object):
             shutil.move(source, dest)
         else:
             raise ValueError(f'"{source}" is not a file.')
+    
+    def monitor_execution(self, task:futures.Future):
+        if task.running():
+            self.running = True
+            if self.progress_bar['mode'] != 'indeterminate':
+                self.progress_bar['mode'] = 'indeterminate'
+                self.progress_bar.start()
+            self.progress_bar.after(1000//30, lambda: self.monitor_execution(task))
+        else:
+            self.progress_bar.stop()
+            self.restore_progress_bar()
+            self.running = False
     
     def monitor(self, thread:Runner):
         if thread.is_alive():
