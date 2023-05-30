@@ -1,5 +1,6 @@
 """Main application window"""
 import shutil, time, threading
+from concurrent import futures
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -602,25 +603,32 @@ class MainWindow(object):
         
         self.progress_bar['mode'] = 'indeterminate'
         self.progress_bar.start(30 // 1000)
-        thread = threading.Thread(target=uv_map.draw_uv_layers_for_texture, kwargs={
+        executor = futures.ThreadPoolExecutor()
+        task = executor.submit(uv_map.draw_uv_layers_for_texture, **{
             'dest': dest,
             'texture_file': texture_file,
             'model_file': model_file,
         })
-        thread.start()
-        while thread.is_alive():
-            # For some reason, update() freezes and update_idletasks() does not work
+        while task.running():
+            # For some reason, update() and update_idletasks() freeze
             # self.win.update_idletasks()
-            # self.progress_bar.update_idletasks()
+            # self.win.update()
             time.sleep(1/30)
         self.progress_bar.stop()
         self.progress_bar['mode'] = 'determinate'
         
-        if messagebox.askyesno(
-            title='Done creating UV maps',
-            message='Texture maps created. Open destination folder?'
-        ):
-            webbrowser.open('file:///' + dest)
+        number = task.result()
+        if number:
+            if messagebox.askyesno(
+                title='Done creating UV maps',
+                message=f'{task.result()} texture maps created. Open destination folder?'
+            ):
+                webbrowser.open('file:///' + dest)
+        else:
+            messagebox.showinfo(
+                title='Could not create UV maps',
+                message=f'Could not create UV maps for texture file "{Path(texture_file).name}" from model "{Path(model_file).name}".'
+            )
         
         self.set_children_state(self.win, tk.NORMAL)
     
