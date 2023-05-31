@@ -5,6 +5,13 @@
 * Create texture UV maps.
 * Added "Tools" menu.
 
+### v1.6.5
+
+* Deals with unicode characters at previously unexpected places.
+* Deals with textures missing a proper "MSFS_texture_dds" extension.
+* Searches for texture directory at aircraft.cfg if a "texture" dir is not found when extracting from glTF.
+* Copes with packages without a texture.cfg file or without fallbacks in it while extracting textures from glTF.
+
 ### v1.6.4
 
 * Texture map creator can deal with path components on image URIs too.
