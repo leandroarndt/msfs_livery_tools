@@ -7,7 +7,7 @@ from threading import Thread
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.compression import dds
-from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout, panel_cfg, thumbnail
+from msfs_livery_tools.package import dds_json, aircraft_cfg, manifest, layout, panel_cfg, thumbnail, cfg_tools
 from msfs_livery_tools.vfs import VFSFile, VFSFolder, VFS
 from .helpers import NOT_SET
 
@@ -129,6 +129,15 @@ class Agent(object):
         gltf = Path(gltf)
         original_suffix = gltf.parent.suffix
         texture_dir = gltf.parent.parent / ('texture' + original_suffix)
+        if not texture_dir.is_dir():
+            aircraft_cfg = configparser.ConfigParser()
+            aircraft_cfg.read(gltf.parent.parent / 'aircraft.cfg', encoding='utf-8')
+            fltsim = cfg_tools.get_section_names('fltsim', aircraft_cfg)
+            if fltsim:
+                try:
+                    texture_dir = gltf.parent.parent / ('texture.' + aircraft_cfg[fltsim[0]]['Texture'].strip('"').strip("'"))
+                except:
+                    print(f'Could not find a valid texture directory for "{gltf.parent.parent.name}"/texture.cfg!')
         output_dir = self._texture_dir()
         
         # Prepare texture copying
@@ -146,8 +155,11 @@ class Agent(object):
             texture_config.read(texture_dir['texture.cfg'].real_path(), encoding='utf-8')
         else:
             texture_config.read(texture_dir / 'texture.cfg', encoding='utf-8')
-        for path in texture_config[texture_config.sections()[0]].values():
-            fallbacks.append(path)
+        try:
+            for path in texture_config[texture_config.sections()[0]].values():
+                fallbacks.append(path)
+        except IndexError:
+            print(f'Could not find fallback directories at "{texture_dir}"!')
         
         # Flag variables
         flags_dir = [texture_dir]
@@ -159,10 +171,12 @@ class Agent(object):
                     except FileNotFoundError:
                         print(f'Could not find "{path}" on VFS!')
             else:
-                # texture_config.read(texture_dir / 'texture.cfg')
-                for path in texture_config[texture_config.sections()[0]].values():
-                    flags_dir.append((texture_dir / path).resolve())
-                flags_dir.reverse()
+                try:
+                    for path in texture_config[texture_config.sections()[0]].values():
+                        flags_dir.append((texture_dir / path).resolve())
+                    flags_dir.reverse()
+                except IndexError:
+                    print(f'Cannot search flags in fallback directories (not provided).')
         except FileNotFoundError:
             pass
         flags = []
