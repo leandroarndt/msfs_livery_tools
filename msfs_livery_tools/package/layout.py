@@ -18,5 +18,5 @@ def create_layout(package_dir:str):
                     'size': Path(file).stat().st_size,
                     'date': win_time(Path(file).stat().st_mtime_ns),
                 })
-    with Path(package_dir, 'layout.json').open('w') as f:
+    with Path(package_dir, 'layout.json').open('w', encoding='utf-8') as f:
         json.dump(layout, f, indent=4)

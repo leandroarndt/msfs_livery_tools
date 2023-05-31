@@ -11,7 +11,7 @@ def from_original(file_name:str, base_container:str, variation_name, suffix:str,
     
     # Reads the original aircraft.cfg
     original = configparser.ConfigParser()
-    original.read(file_name)
+    original.read(file_name, encoding='utf-8')
     
     new_cfg = configparser.ConfigParser()
     

@@ -19,6 +19,6 @@ def create_flags(texture_file:str, flags:list[Flags]):
     f = []
     for flag in flags:
         f.append(flag.value)
-    file = Path(f'{texture_file}.FLAGS').open('w')
+    file = Path(f'{texture_file}.FLAGS').open('w', encoding='utf-8')
     file.write(f'_DEFAULT={"+".join(f)}')
     file.close()

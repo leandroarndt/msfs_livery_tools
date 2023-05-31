@@ -24,7 +24,7 @@ def copy_original(output_file:str, input_file:str, variation:bool=True):
             with "override_base_container = 0". Defaults to True.
     """
     panel = configparser.ConfigParser(comment_prefixes=(';', '//'))
-    panel.read(input_file)
+    panel.read(input_file, encoding='utf-8')
     if variation:
         var_section = get_section('VARIATION', panel)
         var_section['override_base_container'] = '0'
@@ -45,7 +45,7 @@ def set_registration_colors(file_name:str, font:str='black', stroke:str='',
     if not font:
         raise ValueError('Font color must not be void.')
     panel:configparser.ConfigParser = configparser.ConfigParser(comment_prefixes=(';', '//'))
-    panel.read(file_name)
+    panel.read(file_name, encoding='utf-8')
     number = -1
     try:
         registration = get_section_with_info('VPainting', panel,

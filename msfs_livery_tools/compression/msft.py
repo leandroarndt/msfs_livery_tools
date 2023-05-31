@@ -57,7 +57,7 @@ def uncompress(input_file:str, output_file:str, texconv_path:str, texture_input:
                 pass
     
     # Write the resulting glTF
-    f = open(output_file, 'w')
+    f = open(output_file, 'w', encoding='utf-8')
     json.dump(gltf, f, indent=4)
     f.close()
     

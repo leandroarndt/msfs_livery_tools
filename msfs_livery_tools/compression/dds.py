@@ -19,7 +19,7 @@ def from_glft(input_gltf:str|Path, input_dir:str|Path|VFSFolder, output_dir:str|
                 out_format:str='png', fallbacks:list[str]=[]):
     """Converts glTF DDS textures into another format."""
     # Open glTF
-    with Path(input_gltf).open('r') as f:
+    with Path(input_gltf).open('r', encoding='utf-8') as f:
         gltf = json.load(f)
     
     # Uncompress

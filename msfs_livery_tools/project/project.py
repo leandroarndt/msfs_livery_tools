@@ -263,7 +263,7 @@ class Project(object):
             if self.file not in __class__._parsers:
                 __class__._parsers[self.file.as_posix()] = configparser.ConfigParser()
             if self.file.is_file():
-                __class__._parsers[self.file.as_posix()].read(self.file)
+                __class__._parsers[self.file.as_posix()].read(self.file, encoding='utf-8')
             else:
                 __class__._parsers[self.file.as_posix()]['PROJECT'] = {
                     'join_model_and_textures': join_model_and_textures

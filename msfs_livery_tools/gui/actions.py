@@ -143,9 +143,9 @@ class Agent(object):
         fallbacks = []
         texture_config = configparser.ConfigParser()
         if isinstance(texture_dir, VFSFolder):
-            texture_config.read(texture_dir['texture.cfg'].real_path())
+            texture_config.read(texture_dir['texture.cfg'].real_path(), encoding='utf-8')
         else:
-            texture_config.read(texture_dir / 'texture.cfg')
+            texture_config.read(texture_dir / 'texture.cfg', encoding='utf-8')
         for path in texture_config[texture_config.sections()[0]].values():
             fallbacks.append(path)
         
@@ -271,7 +271,7 @@ class Agent(object):
                 break
             # cfg.add_section('fltsim')
             # cfg['fltsim']['fallback.1'] = str(PureWindowsPath(fallback))
-        cfg.read(original)
+        cfg.read(original, encoding='utf-8')
         fallbacks = list(cfg['fltsim'].keys())
         fallbacks.reverse()
         for fb in fallbacks:
@@ -280,7 +280,7 @@ class Agent(object):
             cfg['fltsim'][f'fallback.{n}'] = cfg['fltsim'][fb]
         cfg['fltsim']['fallback.1'] = str(PureWindowsPath('..', '..', Path(original).parent.parent.name, Path(original).parent.name))
         file_name = self._texture_dir() / 'texture.cfg'
-        with file_name.open('w') as f:
+        with file_name.open('w', encoding='utf-8') as f:
             cfg.write(f)
     
     def copy_thumbnail_placeholder(self):
@@ -354,7 +354,7 @@ class Agent(object):
         aircraft = aircraft_cfg.from_original(path, base_container=self.project.base_container,
                                             variation_name=variation_name, suffix=suffix, **kwargs)
         file_name = Path(self.project.file).parent / 'aircraft.cfg'
-        with file_name.open('w') as file:
+        with file_name.open('w', encoding='utf-8') as file:
             file.write(aircraft)
     
     def create_empty_panel(self):

@@ -95,7 +95,7 @@ class AppSettings(object):
         self.file = Path(Path.home(), '.msfs_livery_tools.cfg')
         if __class__._config_parser is None:
             __class__._config_parser = configparser.ConfigParser()
-        __class__._config_parser.read(self.file)
+        __class__._config_parser.read(self.file, encoding='utf-8')
         for section in ('GENERAL', 'BUILD', 'PACKAGES', 'TEXTURES'):
             if section not in __class__._config_parser.sections():
                 __class__._config_parser.add_section(section)
