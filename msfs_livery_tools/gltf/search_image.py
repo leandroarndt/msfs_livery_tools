@@ -26,8 +26,11 @@ def texture_with_image_name(model:Gltf, name:str)->list[int]:
     image_list = image_with_name(model, name)
     texture_list = []
     for i, texture in enumerate(model.textures):
-        if texture.extensions['MSFT_texture_dds']['source'] in image_list:
-            texture_list.append(i)
+        try:
+            if texture.extensions['MSFT_texture_dds']['source'] in image_list:
+                texture_list.append(i)
+        except (KeyError, TypeError): # If key doesn't exist or MSFT_texture_dds is None
+            pass
     
     return texture_list
 
