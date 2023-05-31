@@ -114,7 +114,7 @@ class VFSFolder(_VFSObject, _VFSContainer):
     
     @classmethod
     def scan_layout(cls, layout_file:Path, root):
-        with layout_file.open('r') as f:
+        with layout_file.open('r', encoding='utf-8') as f:
             layout = json.load(f)
         for item in layout['content']:
             try:
