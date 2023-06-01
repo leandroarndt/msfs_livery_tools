@@ -8,7 +8,7 @@ class DescriptorFlags:
     compressed = 'FL_BITMAP_COMPRESSION'
     mipmap = 'FL_BITMAP_MIPMAP'
     normal_map = 'FL_BITMAP_TANGENT_DXT5N'
-    no_gama = 'FL_BITMAP_NO_GAMMA_CORRECTION'
+    no_gamma = 'FL_BITMAP_NO_GAMMA_CORRECTION'
     composite = 'FL_BITMAP_METAL_ROUGH_AO_DATA'
     high_quality = 'FL_BITMAP_QUALITY_HIGH'
 
@@ -31,8 +31,8 @@ class Uses(Enum):
     Albedo = Name_Flags_Alpha(['_ALBD', '_ALBEDO', '_ALB'], alpha=True)
     Emissive = Name_Flags_Alpha(['_LIT', '_EMIT'], alpha=True)
     Normal_Map = Name_Flags_Alpha(['_NORM', '_NRM', '_NORMAL'],
-                            [DescriptorFlags.normal_map, DescriptorFlags.no_gama])
-    Composite = Name_Flags_Alpha(['_COMP', '_PBR'], [DescriptorFlags.no_gama,DescriptorFlags.composite])
+                            [DescriptorFlags.normal_map, DescriptorFlags.no_gamma])
+    Composite = Name_Flags_Alpha(['_COMP', '_PBR'], [DescriptorFlags.no_gamma,DescriptorFlags.composite])
 
 def create_description(dds_file:str, use=Uses.Unknown, alpha=None):
     """Creates a JSON description of dds_file as "dds_file.json".
