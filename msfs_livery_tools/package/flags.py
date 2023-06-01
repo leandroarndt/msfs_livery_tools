@@ -1,9 +1,7 @@
 """Flags for texture files"""
-from enum import Enum, unique
 from pathlib import Path
 
-@unique
-class Flags(Enum):
+class Flags:
     no_reduce = 'NOREDUCE'
     quality_high = 'QUALITYHIGH'
     precomputed_inverse_average = 'PRECOMPUTEDINVAVG'
