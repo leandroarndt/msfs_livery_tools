@@ -10,6 +10,7 @@ class DescriptorFlags:
     normal_map = 'FL_BITMAP_TANGENT_DXT5N'
     no_gama = 'FL_BITMAP_NO_GAMMA_CORRECTION'
     composite = 'FL_BITMAP_METAL_ROUGH_AO_DATA'
+    high_quality = 'FL_BITMAP_QUALITY_HIGH'
 
 class Name_Flags_Alpha(object):
     names:list[str]
