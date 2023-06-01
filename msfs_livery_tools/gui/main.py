@@ -14,7 +14,7 @@ from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
 from msfs_livery_tools.gltf import uv_map
-from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window
+from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window, upgrader
 import __main__
 
 def needs_texconv(func):
@@ -378,6 +378,11 @@ class MainWindow(object):
             time.sleep(1/30)
         splash_window.win.destroy()
         self.win.deiconify()
+        
+        # Run upgrader
+        upgrade = upgrader.Upgrader()
+        upgrader_pool = futures.ProcessPoolExecutor(1)
+        upgrader_pool.submit(upgrade.run)
     
     # Monitor VFS scanner
     def monitor_scanner(self, scanner:package_scanner.Scanner, splash_window:splash.Splash|None=None):
