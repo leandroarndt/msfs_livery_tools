@@ -1,22 +1,45 @@
 """Flags for texture files"""
 from pathlib import Path
 
-class Flags:
+class Flags (object):
     no_reduce = 'NOREDUCE'
     quality_high = 'QUALITYHIGH'
     precomputed_inverse_average = 'PRECOMPUTEDINVAVG'
     alpha_preservation = 'ALPHAPRESERVATION'
+    
+    file:Path
+    _flags:set
+    
+    def __init__(self, flags:list, file:str|Path|None=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if file:
+            self.file = Path(file)
+        self._flags = set()
+        for flag in flags:
+            self._flags.add(flag)
+    
+    def __str__(self)->str:
+        return f'_DEFAULT=+{"+".join(self._flags)}'
+    
+    @classmethod
+    def open(cls, file:str|Path):
+        file = Path(file)
+        with file.open('r', encoding='utf-8') as f:
+            contents = f.read()
+            contents = contents[10:] # remove "_DEFAULT=+"
+            return cls(contents.split('+'), file)
+    
+    def save(self, file:str|Path|None=None):
+        if file:
+            self.file = Path.file
+        if not self.file:
+            raise ValueError('Cannot save without file path.')
+        with self.file.open('w', encoding='utf-8') as f:
+            f.write(str(self))
+    
+    def add(self, flag:str):
+        self._flags.add(flag)
+    
+    def remove(self, flag:str):
+        self._flags.discard(flag)
 
-def create_flags(texture_file:str, flags:list[Flags]):
-    """Creates .FLAGS file for textures.
-
-    Args:
-        texture_file (str): texture file.
-        flags (list[Flags]): flag list.
-    """
-    f = []
-    for flag in flags:
-        f.append(flag.value)
-    file = Path(f'{texture_file}.FLAGS').open('w', encoding='utf-8')
-    file.write(f'_DEFAULT={"+".join(f)}')
-    file.close()
