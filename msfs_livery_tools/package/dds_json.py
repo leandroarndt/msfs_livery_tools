@@ -18,7 +18,10 @@ class Descriptor(object):
     
     def __init__(self, flags:list[str], alpha:bool=False, use_defaults:bool=True, file:str|Path|None=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.file = file
+        if file:
+            self.file = Path(file)
+        else:
+            self.file = None
         self.alpha = alpha
         self.flags = set()
         if use_defaults:
@@ -62,13 +65,12 @@ class Descriptor(object):
             self.file = Path(file)
         if not self.file:
             raise ValueError('Cannot save without a file name.')
-        if not self.file.with_suffix('').is_file():
-            raise ValueError(f'Cannot describe non-existing DDS file "{file.with_suffix("")}". Compress texture first!')
         description = {
             'Version': 2,
-            'SourceFileDate': description_tools.win_time(Path(self.file.with_suffix('')).stat().st_mtime_ns),
             'Flags': list(self.flags),
         }
+        if self.file.with_suffix('').is_file():
+            description['SourceFileDate'] = description_tools.win_time(Path(self.file.with_suffix('')).stat().st_mtime_ns)
         if self.alpha:
             description['HasTransp'] = True
         with self.file.open('w', encoding='utf-8') as f:
