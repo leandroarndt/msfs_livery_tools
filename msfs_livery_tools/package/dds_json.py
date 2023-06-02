@@ -60,6 +60,17 @@ class Descriptor(object):
             alpha = False
         return cls(flags=flags, alpha=alpha, use_defaults=False, file=file)
     
+    @classmethod
+    def create_or_update_for_texture(cls, file:str|Path):
+        file = Path(file)
+        try:
+            descriptor = cls.open(file.with_suffix('.dds.json'))
+            print(f'Updating "{file.with_suffix(".dds.json")}"…')
+        except FileNotFoundError:
+            descriptor = cls.for_texture(file)
+            print(f'Describing "{file.name}"…')
+        descriptor.save()
+    
     def save(self, file:str|Path|None=None):
         if file:
             self.file = Path(file)
