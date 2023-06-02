@@ -2,10 +2,10 @@
 from pathlib import Path
 
 class Flags (object):
-    no_reduce = 'NOREDUCE'
-    quality_high = 'QUALITYHIGH'
-    precomputed_inverse_average = 'PRECOMPUTEDINVAVG'
-    alpha_preservation = 'ALPHAPRESERVATION'
+    NO_REDUCE = 'NOREDUCE'
+    QUALITY_HIGH = 'QUALITYHIGH'
+    PRECOMPUTED_INVERSE_AVERAGE = 'PRECOMPUTEDINVAVG'
+    ALPHA_PRESERVATION = 'ALPHAPRESERVATION'
     
     file:Path
     _flags:set
