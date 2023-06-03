@@ -15,6 +15,7 @@ from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
 from msfs_livery_tools.gltf import uv_map
 from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window, upgrader
+from .tabs import flags_json
 import __main__
 
 def needs_texconv(func):
@@ -98,8 +99,8 @@ class MainWindow(object):
     font_color_entry:helpers.LabelEntry
     stroke_color_entry:helpers.LabelEntry
     stroke_size:helpers.LabelEntry
-    # Textures
-    textures_frame:ttk.Frame
+    # JSON/flags files
+    flags_json_tab:flags_json.FlagsJSONFrame
     
     # Actions frame
     actions_frame:ttk.Labelframe
@@ -290,9 +291,9 @@ class MainWindow(object):
         self.stroke_size = helpers.LabelEntry(self.panel_frame, label_text='Stroke size', app=self,
                                                 property='registration_stroke_size')
         self.stroke_size.pack(side=tk.TOP, fill=tk.BOTH)
-        # Textures
-        # self.textures_frame = ttk.Frame(self.project_notebook)
-        # self.project_notebook.add(self.textures_frame, text='Textures')
+        # Flags/JSON
+        self.flags_json_tab = flags_json.FlagsJSONFrame(self.win)
+        self.project_notebook.add(self.flags_json_tab, text='Texture flags')
         
         # Action frame
         self.actions_frame = ttk.LabelFrame(self.middle_frame, text='Actions')
@@ -313,9 +314,6 @@ class MainWindow(object):
         self.texture_cfg_button = ttk.Button(self.actions_frame, text='Create texture.cfg',
                                             command=self.create_texture_cfg, state=tk.DISABLED)
         self.texture_cfg_button.pack(fill=tk.X)
-        # self.texture_flags_button = ttk.Button(self.actions_frame, text='Create texture flags',
-        #                                         command=self.create_flags, state=tk.DISABLED)
-        # self.texture_flags_button.pack(fill=tk.X)
         # Thumbnails section
         self.thumbnail_separator = styles.Separator(self.actions_frame, orient=tk.HORIZONTAL)
         self.thumbnail_separator.pack(fill=tk.X)
@@ -496,6 +494,9 @@ class MainWindow(object):
         
         # Reset entries
         self.populate(self.project_notebook)
+        
+        # Populate texture chooser
+        self.flags_json_tab.scan_textures(self.project)
     
     def open_project(self, path:str|None=None):
         if self.gui_disabled:
@@ -527,6 +528,7 @@ class MainWindow(object):
         self.set_children_state(self.win, tk.NORMAL)
         self.project_modified = False
         self.agent.project = self.project
+        self.flags_json_tab.scan_textures(self.project)
         
         # Rebuild recent files menu
         self.app_settings.recent_files = path
@@ -673,6 +675,7 @@ class MainWindow(object):
         if path:
             try:
                 self.agent.extract_textures(path, self.vfs)
+                self.flags_json_tab.scan_textures(self.project)
             except ValueError:
                 messagebox.showerror(title='Error extracting textures',
                                     message=f'Could not extract textures from "{path}".')
