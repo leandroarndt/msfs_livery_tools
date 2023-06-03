@@ -4,14 +4,100 @@ from pathlib import Path
 from enum import Enum
 from . import description_tools
 
-class Name_Flags_Alpha(object):
-    names:list[str]
-    flags:list[str] = ['FL_BITMAP_COMPRESSION', 'FL_BITMAP_MIPMAP']
+class Descriptor(object):
+    COMPRESSED = 'FL_BITMAP_COMPRESSION'
+    MIPMAP = 'FL_BITMAP_MIPMAP'
+    NORMAL_MAP = 'FL_BITMAP_TANGENT_DXT5N'
+    NO_GAMMA = 'FL_BITMAP_NO_GAMMA_CORRECTION'
+    COMPOSITE = 'FL_BITMAP_METAL_ROUGH_AO_DATA'
+    HIGH_QUALITY = 'FL_BITMAP_QUALITY_HIGH'
+    
+    file:Path
+    flags:set
     alpha:bool = False
     
-    def __init__(self, names:list[str]=[], flags:list[str]=[], alpha:bool=False):
+    def __init__(self, flags:list[str], alpha:bool=False, use_defaults:bool=True, file:str|Path|None=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if file:
+            self.file = Path(file)
+        else:
+            self.file = None
+        self.alpha = alpha
+        self.flags = set()
+        if use_defaults:
+            self.flags.add(self.COMPRESSED)
+            self.flags.add(self.MIPMAP)
+        for flag in flags:
+            self.flags.add(flag)
+    
+    @classmethod
+    def for_texture(cls, texture_file:str|Path):
+        use:Uses
+        
+        texture_file = Path(texture_file)
+        use = Uses.Unknown
+        for u in Uses:
+            for name in u.value.names:
+                if name in texture_file.name.upper():
+                    use = u
+        if use == Uses.Unknown:
+            use = Uses.Albedo
+        
+        return cls(flags=use.value.flags, alpha=use.value.alpha, use_defaults=False, file=texture_file.with_suffix('.dds.json'))
+    
+    @classmethod
+    def open(cls, file:str|Path):
+        file = Path(file)
+        with file.open('r', encoding='utf-8') as f:
+            description = json.load(f)
+        try:
+            flags = description['Flags']
+        except KeyError:
+            flags =[]
+        try:
+            alpha = description['HasTransp']
+        except KeyError:
+            alpha = False
+        return cls(flags=flags, alpha=alpha, use_defaults=False, file=file)
+    
+    @classmethod
+    def create_or_update_for_texture(cls, file:str|Path):
+        file = Path(file)
+        try:
+            descriptor = cls.open(file.with_suffix('.dds.json'))
+            print(f'Updating "{file.with_suffix(".dds.json")}"…')
+        except FileNotFoundError:
+            descriptor = cls.for_texture(file)
+            print(f'Describing "{file.name}"…')
+        descriptor.save()
+    
+    def save(self, file:str|Path|None=None):
+        if file:
+            self.file = Path(file)
+        if not self.file:
+            raise ValueError('Cannot save without a file name.')
+        description = {
+            'Version': 2,
+            'Flags': list(self.flags),
+        }
+        if self.file.with_suffix('').is_file():
+            description['SourceFileDate'] = description_tools.win_time(Path(self.file.with_suffix('')).stat().st_mtime_ns)
+        if self.alpha:
+            description['HasTransp'] = True
+        with self.file.open('w', encoding='utf-8') as f:
+            json.dump(description, f)
+
+class Name_Flags_Alpha(object):
+    names:list[str]
+    flags:list[str] = [Descriptor.COMPRESSED, Descriptor.MIPMAP]
+    alpha:bool = False
+    
+    def __init__(self, names:list[str]=[], flags:list[str]=[], alpha:bool=False, no_default=False):
         self.names = names
-        self.flags = __class__.flags + flags
+        if no_default:
+            self.flags = flags
+        else:
+            self.flags = __class__.flags + flags
         self.alpha = alpha
 
 class Uses(Enum):
@@ -20,8 +106,8 @@ class Uses(Enum):
     Albedo = Name_Flags_Alpha(['_ALBD', '_ALBEDO', '_ALB'], alpha=True)
     Emissive = Name_Flags_Alpha(['_LIT', '_EMIT'], alpha=True)
     Normal_Map = Name_Flags_Alpha(['_NORM', '_NRM', '_NORMAL'],
-                            ['FL_BITMAP_TANGENT_DXT5N', 'FL_BITMAP_NO_GAMMA_CORRECTION'])
-    Composite = Name_Flags_Alpha(['_COMP', '_PBR'], ['FL_BITMAP_NO_GAMMA_CORRECTION','FL_BITMAP_METAL_ROUGH_AO_DATA'])
+                            [Descriptor.NORMAL_MAP, Descriptor.NO_GAMMA])
+    Composite = Name_Flags_Alpha(['_COMP', '_PBR'], [Descriptor.NO_GAMMA,Descriptor.COMPOSITE])
 
 def create_description(dds_file:str, use=Uses.Unknown, alpha=None):
     """Creates a JSON description of dds_file as "dds_file.json".

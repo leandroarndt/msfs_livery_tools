@@ -265,9 +265,10 @@ class Agent(object):
             self.progress_bar['value'] += 1
             self.progress_bar.update()
             exists = (file.parent / (file.name + '.json')).is_file()
-            if not (file.parent / (file.name + '.json')).is_file():
-                print(f'Describing "{file}"…')
-                dds_json.create_description(file)
+            # if not (file.parent / (file.name + '.json')).is_file():
+            #     print(f'Describing "{file}"…')
+            #     dds_json.Descriptor.for_texture(file).save(
+            dds_json.Descriptor.create_or_update_for_texture(file)
         self.restore_progress_bar()
         if not textures:
             raise FileNotFoundError

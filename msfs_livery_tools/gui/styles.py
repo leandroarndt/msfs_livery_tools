@@ -2,8 +2,9 @@
 import tkinter as tk
 from tkinter import ttk
 
-BOLD_BUTTON:str = 'Bold.TButton'
-HEADING:str = 'Heading.TLabel'
+FRAME_PADDING = 5
+BOLD_BUTTON = 'Bold.TButton'
+HEADING = 'Heading.TLabel'
 
 _font = ['TkDefaultFont', 10]
 _bold_font = _font.copy()
