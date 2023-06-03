@@ -14,8 +14,8 @@ MSFS Livery Tools is a Windows application to help creating liveries for existin
 * Creating a "panel.cfg" file and changing:
   * variation override;
   * external registration font color and stroke.
-* Creating descriptive JSON files for DDS textures (.DDS.json).
-* Creating flag file for textures (.FLAGS) – not on the graphical user interface.
+* Creating and editing descriptive JSON files for DDS textures (.DDS.json).
+* Creating and editing flag file for textures (.FLAGS).
 * Creating and updating package layout files ("layout.json").
 * Managing thumbnails (converting from capture tool, resizing and adding a placeholder).
 
