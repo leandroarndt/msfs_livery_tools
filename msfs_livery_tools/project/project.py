@@ -49,6 +49,11 @@ class Project(object):
     def join_model_and_textures(self, value:bool):
         __class__._parsers[self.file.as_posix()]['PROJECT']['join_model_and_textures'] = str(value)
     
+    def get_texture_dir(self)->Path:
+        if self.join_model_and_textures:
+            return self.file.parent / 'model'
+        return self.file.parent / 'texture'
+    
     @property
     def origin(self)->str:
         return __class__._parsers[self.file.as_posix()]['PROJECT']['origin']
