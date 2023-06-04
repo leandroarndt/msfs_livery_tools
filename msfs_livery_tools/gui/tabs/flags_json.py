@@ -1,6 +1,7 @@
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.package import flags, dds_json
 from msfs_livery_tools.gui.styles import FRAME_PADDING
@@ -10,6 +11,9 @@ class FlagsJSONFrame(ttk.Frame):
     descriptor:dds_json.Descriptor
     flags_file:flags.Flags
     texture_list:list
+    texture:str = ''
+    descriptor_modified:bool = False
+    flags_modified:bool = False
     chooser_frame:ttk.Frame
     chooser_label:ttk.Label
     texture_chooser:ttk.Combobox
@@ -199,11 +203,16 @@ class FlagsJSONFrame(ttk.Frame):
     def set_state(self, state:str):
         for child in self.json_frame.children.values():
             child['state'] = state
+        for child in self.flags_frame.children.values():
+            child['state'] = state
     
     def scan_textures(self, project:Project|None=None):
         if project:
             self.project = project
-        if not self.project:
+        elif self.project:
+            if not self.modified_alert():
+                return
+        else:
             return
         self.texture_chooser.set('')
         texture_folder = self.project.get_texture_dir()
@@ -221,17 +230,23 @@ class FlagsJSONFrame(ttk.Frame):
         self.save_flags_button['state'] = tk.DISABLED
         self.descriptor = None
         self.flags_file = None
+        
+        self.descriptor_modified = False
+        self.flags_modified = False
     
     def chosen(self, event):
-        texture = self.texture_chooser.get()
+        if not self.modified_alert():
+            self.texture_chooser.set(self.texture)
+            return
+        self.texture = self.texture_chooser.get()
         
         # Descriptor
         try:
-            self.descriptor = dds_json.Descriptor.open((self.project.get_texture_dir() / texture).with_suffix('.dds.json'))
+            self.descriptor = dds_json.Descriptor.open((self.project.get_texture_dir() / self.texture).with_suffix('.dds.json'))
             print(f'Opened descriptor "{self.descriptor.file.name}"')
         except FileNotFoundError:
-            self.descriptor = dds_json.Descriptor.for_texture(self.project.get_texture_dir() / texture)
-            print(f'Created descriptor object for "{texture}"')
+            self.descriptor = dds_json.Descriptor.for_texture(self.project.get_texture_dir() / self.texture)
+            print(f'Created descriptor object for "{self.texture}"')
         
         self.compressed_var.set(dds_json.Descriptor.COMPRESSED in self.descriptor.flags)
         self.mipmap_var.set(dds_json.Descriptor.MIPMAP in self.descriptor.flags)
@@ -257,11 +272,11 @@ class FlagsJSONFrame(ttk.Frame):
         
         # Flags
         try:
-            self.flags_file = flags.Flags.open((self.project.get_texture_dir() / texture).with_suffix('.dds.flags'))
+            self.flags_file = flags.Flags.open((self.project.get_texture_dir() / self.texture).with_suffix('.dds.flags'))
             print(f'Opened ".flags" file "{self.flags_file.file.name}".')
         except FileNotFoundError:
-            self.flags_file= flags.Flags([], (self.project.get_texture_dir() / texture).with_suffix('.dds.flags'))
-            print(f'Created flags object for "{texture}".')
+            self.flags_file= flags.Flags([], (self.project.get_texture_dir() / self.texture).with_suffix('.dds.flags'))
+            print(f'Created flags object for "{self.texture}".')
         
         self.no_reduce_var.set(flags.Flags.NO_REDUCE in self.flags_file.flags)
         self.quality_high_var.set(flags.Flags.QUALITY_HIGH in self.flags_file.flags)
@@ -285,9 +300,13 @@ class FlagsJSONFrame(ttk.Frame):
         self.set_state(tk.NORMAL)
         self.save_json_button['state'] = tk.DISABLED
         self.save_flags_button['state'] = tk.DISABLED
+        
+        self.descriptor_modified = False
+        self.flags_modified = False
     
     def modified_json(self, *args, **kwargs):
         self.save_json_button['state'] = tk.NORMAL
+        self.descriptor_modified = True
     
     def save_json(self):
         self.descriptor.flags = set()
@@ -308,10 +327,12 @@ class FlagsJSONFrame(ttk.Frame):
                 self.descriptor.flags.add(extra.strip(' "\''))
         
         self.descriptor.save()
+        self.descriptor_modified = False
         self.save_json_button['state'] = tk.DISABLED
     
     def modified_flags(self, *args, **kwargs):
         self.save_flags_button['state'] = tk.NORMAL
+        self.flags_modified = True
     
     def save_flags(self):
         self.flags_file.flags = set()
@@ -328,4 +349,28 @@ class FlagsJSONFrame(ttk.Frame):
                 self.flags_file.flags.add(extra.strip(' "\''))
         
         self.flags_file.save()
+        self.flags_modified = False
         self.save_flags_button['state'] = tk.DISABLED
+    
+    def modified_alert(self)->bool:
+        """Checks for modified descriptor and flags, asks to save and returns whether to proceed or not.
+        """
+        
+        if self.descriptor_modified or self.flags_modified:
+            if self.descriptor_modified and self.flags_modified:
+                message = 'Descriptor and ".flags" file modified. Save changes?'
+            elif self.descriptor_modified:
+                message = 'Descriptor (".dds.json") modified. Save changes?'
+            elif self.flags_modified:
+                message = '".Flags" file modified. Save changes?'
+                
+            answer = messagebox.askyesnocancel(title='Save changes?', message=message)
+            if answer is None:
+                return False
+            if answer == True:
+                if self.descriptor_modified:
+                    self.save_json()
+                if self.flags_modified:
+                    self.save_flags()
+            return True
+        return True
