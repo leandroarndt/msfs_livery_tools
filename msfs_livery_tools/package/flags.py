@@ -31,7 +31,11 @@ class Flags (object):
     
     def save(self, file:str|Path|None=None):
         if file:
-            self.file = Path.file
+            self.file = Path(file)
+        if self.file.is_file() and len(self.flags) == 0:
+            self.file.unlink()
+            print(f'Trying to save void "{self.file.name}". Deleting!')
+            return
         if not self.file:
             raise ValueError('Cannot save without file path.')
         with self.file.open('w', encoding='utf-8') as f:
