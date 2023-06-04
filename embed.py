@@ -36,7 +36,10 @@ if __name__ == '__main__':
     for package in site_packages.iterdir():
         if 'pip' not in package.name:
             print(f'Copying package "{package.name}".')
-            shutil.copytree(package, dest / package.name)
+            try:
+                shutil.copytree(package, dest / package.name)
+            except NotADirectoryError:
+                shutil.copy(package, dest)
     
     print('Copying source files.')
     shutil.copytree(source_dir, dest / source_dir)
