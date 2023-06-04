@@ -1,5 +1,12 @@
 # MSFS Livery Tools changelog
 
+## v1.7
+
+* Allows editing of texture descriptors and flags (".dds.json" and ".flags" files).
+* Updates texture descriptors when packaging, so that they have information about the current version of the texture file.
+* Checks for updates at startup.
+* Creates UV maps for all texture types: albedo, composite, emissive and normal.
+
 ## v1.6
 
 * Create texture UV maps.
