@@ -151,15 +151,19 @@ class Agent(object):
         # Fallbacks:
         fallbacks = []
         texture_config = configparser.ConfigParser()
-        if isinstance(texture_dir, VFSFolder):
-            texture_config.read(texture_dir['texture.cfg'].real_path(), encoding='utf-8')
-        else:
-            texture_config.read(texture_dir / 'texture.cfg', encoding='utf-8')
+        
         try:
-            for path in texture_config[texture_config.sections()[0]].values():
-                fallbacks.append(path)
-        except IndexError:
-            print(f'Could not find fallback directories at "{texture_dir}"!')
+            if isinstance(texture_dir, VFSFolder):
+                texture_config.read(texture_dir['texture.cfg'].real_path(), encoding='utf-8')
+            else:
+                texture_config.read(texture_dir / 'texture.cfg', encoding='utf-8')
+            try:
+                for path in texture_config[texture_config.sections()[0]].values():
+                    fallbacks.append(path)
+            except IndexError:
+                print(f'Could not find fallback directories at "{texture_dir}"!')
+        except (KeyError, FileNotFoundError):
+            print(f'Cannot open "texture.cfg". Not searching for fallback textures.')
         
         # Flag variables
         flags_dir = [texture_dir]
@@ -177,7 +181,7 @@ class Agent(object):
                     flags_dir.reverse()
                 except IndexError:
                     print(f'Cannot search flags in fallback directories (not provided).')
-        except FileNotFoundError:
+        except (FileNotFoundError, KeyError, IndexError):
             pass
         flags = []
         
@@ -286,9 +290,14 @@ class Agent(object):
                 break
             # cfg.add_section('fltsim')
             # cfg['fltsim']['fallback.1'] = str(PureWindowsPath(fallback))
-        cfg.read(original, encoding='utf-8')
-        fallbacks = list(cfg['fltsim'].keys())
-        fallbacks.reverse()
+        try:
+            cfg.read(original, encoding='utf-8')
+            fallbacks = list(cfg['fltsim'].keys())
+            fallbacks.reverse()
+        except KeyError:
+            cfg.add_section('fltsim')
+            fallbacks = []
+            print('Cannot find fallback directories for textures. Will use project\'s origin only.')
         for fb in fallbacks:
             nothing, n = fb.split('.')
             n = int(n) + 1
