@@ -7,6 +7,10 @@
 * Checks for updates at startup.
 * Creates UV maps for all texture types: albedo, composite, emissive and normal.
 
+### v1.7.1
+
+* Corrected texture extraction and packaging routines when it cannot find a "texture.cfg" file in the original livery.
+
 ## v1.6
 
 * Create texture UV maps.
