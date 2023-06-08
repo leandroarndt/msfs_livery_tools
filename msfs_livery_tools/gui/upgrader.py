@@ -67,9 +67,13 @@ class Upgrader(object):
     
     def run(self):
         print(f'Running version {self.current}')
-        self.anonymous = GitHub()
-        self.repository = self.anonymous.repository('leandroarndt', 'msfs_livery_tools')
-        releases = self.repository.releases()
+        try:
+            self.anonymous = GitHub()
+            self.repository = self.anonymous.repository('leandroarndt', 'msfs_livery_tools')
+            releases = self.repository.releases()
+        except:
+            print('Could not retrieve releases from Github.')
+            return
         newest_tag = Tag('v0.0.0')
         for r in releases:
             if Tag(r.tag_name) > newest_tag:
@@ -82,3 +86,5 @@ class Upgrader(object):
                 message=f'There is a new MSFS Livery Tools version available ({newest_tag}). Open download page?'
             ):
                 webbrowser.open(self.newest.html_url)
+        else:
+            print('Newest version already installed.')
