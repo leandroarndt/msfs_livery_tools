@@ -13,7 +13,7 @@ from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
-from msfs_livery_tools.gltf import uv_map
+from msfs_livery_tools.gltf import png_map
 from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window, upgrader
 from .tabs import flags_json
 import __main__
@@ -626,7 +626,7 @@ class MainWindow(object):
         task_window.TaskWindow(
             'Extracting texture map',
             f'Extracting texture map for "{Path(texture_file).name}"',
-            uv_map.draw_uv_layers_for_texture,
+            png_map.draw_uv_layers_for_texture,
             map_finished,
             **{
                 'dest': dest,
