@@ -3,10 +3,11 @@ from gltf_python_io.imp.gltf2_io_gltf import glTFImporter
 from gltf_python_io.com.gltf2_io import MeshPrimitive, Accessor
 from gltf_python_io.com.gltf2_io_constants import ComponentType
 from PIL import Image, ImageDraw
-import numpy
+import numpy, drawsvg
 
-def draw_uv_map(image:Image, model:glTFImporter, primitive:MeshPrimitive,
-                fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0):
+def draw_uv_map(image, model:glTFImporter, primitive:MeshPrimitive,
+                fill=(127,127,127,127), outline=(0,0,0,255), svg_size:int=2048,
+                fill_opacity=0.3, tc_map:int=0):
     """Draws a UV map at image based on data from primitive. `model` should be a glTFImporter,
     since the common glTF class does not have a `data` attribute. Tries to support Asobo
     undocumented extension.
@@ -80,14 +81,32 @@ def draw_uv_map(image:Image, model:glTFImporter, primitive:MeshPrimitive,
         ComponentType.to_type_code = to_type_code
         ComponentType.to_numpy_dtype = to_numpy_dtype
     
-    ratio = image.size[0] / component_size
     
-    draw = ImageDraw.Draw(image)
+    
+    if isinstance(image, Image.Image):
+        size = image.size[0]
+        ratio = image.size[0] / component_size
+        draw = ImageDraw.Draw(image)
+        draw_function = lambda coord: draw.polygon(coord, fill=fill, outline=outline)
+    else:
+        size = svg_size
+        ratio = svg_size / component_size
+        draw_function = lambda coord: image.append(
+            drawsvg.Lines(
+                coord[0][0], coord[0][1],
+                coord[1][0], coord[1][1],
+                coord[2][0], coord[2][1],
+                close=True,
+                fill=fill,
+                stroke=outline,
+                fill_opacity=fill_opacity
+            )
+        )
     
     for i in range(count):
         vertexes = (indices[i*3+offset][0], indices[i*3+1+offset][0], indices[i*3+2+offset][0])
-        draw.polygon([
-            (tc[vertexes[0]][0]*ratio+displacement*image.size[0], tc[vertexes[0]][1]*ratio+displacement*image.size[1]),
-            (tc[vertexes[1]][0]*ratio+displacement*image.size[0], tc[vertexes[1]][1]*ratio+displacement*image.size[1]),
-            (tc[vertexes[2]][0]*ratio+displacement*image.size[0], tc[vertexes[2]][1]*ratio+displacement*image.size[1]),
-        ], fill=fill, outline=outline)
+        draw_function([
+            (tc[vertexes[0]][0]*ratio+displacement*size, tc[vertexes[0]][1]*ratio+displacement*size),
+            (tc[vertexes[1]][0]*ratio+displacement*size, tc[vertexes[1]][1]*ratio+displacement*size),
+            (tc[vertexes[2]][0]*ratio+displacement*size, tc[vertexes[2]][1]*ratio+displacement*size),
+        ])
