@@ -2,7 +2,7 @@ from pathlib import Path
 from gltf_python_io.imp.gltf2_io_gltf import glTFImporter
 import queue, drawsvg, colorsys
 from .uv_map import draw_uv_map
-from . import search_image
+from .. import search_image
 
 def draw_svg_map(dest:str|Path, model_file:str|Path, texture_file:str|Path|None=None,
                             fill=None, outline='black', fill_opacity=0.3, size:int=2048,

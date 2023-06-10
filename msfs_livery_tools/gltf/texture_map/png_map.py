@@ -2,7 +2,7 @@ from pathlib import Path
 from gltf_python_io.imp.gltf2_io_gltf import glTFImporter
 from PIL import Image
 import queue
-from . import search_image
+from .. import search_image
 from .uv_map import *
 
 def draw_uv_for_texture(image:Image, texture_name:str, model:glTFImporter, fill=(127,127,127,127), outline=(0,0,0,255), tc_map:int=0):
