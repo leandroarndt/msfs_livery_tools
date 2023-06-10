@@ -13,7 +13,7 @@ from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
-from msfs_livery_tools.gltf import png_map
+from msfs_livery_tools.gltf.texture_map import png_map, svg_map
 from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window, upgrader
 from .tabs import flags_json
 import __main__
@@ -588,6 +588,7 @@ class MainWindow(object):
     
     def create_uv_map(self):
         self.set_children_state(self.win, state=tk.DISABLED)
+        png = False
         
         dest = filedialog.askdirectory(mustexist=True, title='Choose texture map destination path')
         if not dest:
@@ -623,18 +624,32 @@ class MainWindow(object):
                     message=f'Could not create UV maps for texture file "{Path(texture_file).name}" from model "{Path(model_file).name}".'
                 )
         
-        task_window.TaskWindow(
-            'Extracting texture map',
-            f'Extracting texture map for "{Path(texture_file).name}"',
-            png_map.draw_uv_layers_for_texture,
-            map_finished,
-            **{
-                'dest': dest,
-                'texture_file': texture_file,
-                'model_file': model_file,
-                'queue': Queue()
-            }
-        )
+        if png:
+            task_window.TaskWindow(
+                'Extracting texture map',
+                f'Extracting texture map for "{Path(texture_file).name}"',
+                png_map.draw_uv_layers_for_texture,
+                map_finished,
+                **{
+                    'dest': dest,
+                    'texture_file': texture_file,
+                    'model_file': model_file,
+                    'queue': Queue()
+                }
+            )
+        else:
+            task_window.TaskWindow(
+                'Extracting texture map',
+                f'Extracting texture map for "{Path(texture_file).name}"',
+                svg_map.draw_svg_map,
+                map_finished,
+                **{
+                    'dest': dest,
+                    # 'texture_file': texture_file,
+                    'model_file': model_file,
+                    'queue': Queue()
+                }
+            )
     
     def about(self):
         about_window = about.About(self.win)
