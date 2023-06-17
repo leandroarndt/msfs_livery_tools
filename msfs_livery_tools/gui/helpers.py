@@ -66,9 +66,10 @@ class ProjectMixin(object):
             except AttributeError:
                 pass # Not set
         else:
-            self.app.project_modified = True
-            self.app.save_project_button.config(state=tk.NORMAL)
-            self.app.file_menu.entryconfigure(3, state=tk.NORMAL)
+            if self.app is not None:
+                self.app.project_modified = True
+                self.app.save_project_button.config(state=tk.NORMAL)
+                self.app.file_menu.entryconfigure(3, state=tk.NORMAL)
             self.command()
 
 class CheckButton(ProjectMixin, ttk.Checkbutton):
@@ -114,14 +115,19 @@ class PathChooser(ProjectMixin, ttk.Frame):
             self.button = ttk.Button(self, text=button_text, command=button_command, state=state)
     
     def __str__(self):
-        return f'{self.title}: "{PurePath(self.value.get())}"'
+        if self.get():
+            return f'{self.title}: "{PurePath(self.value.get())}"'
+        else:
+            return f'{self.title}: {NOT_SET}'
     
     def load(self):
         super().load()
         self.label_var.set(str(self))
     
     def get(self):
-        return self.value
+        if self.value.get() == NOT_SET:
+            return ''
+        return self.value.get()
     
     def set(self, *args, **kwargs):
         super().set(*args, **kwargs)
@@ -141,10 +147,9 @@ class PathChooser(ProjectMixin, ttk.Frame):
             return
         if not Path(path).exists():
             Path(path).mkdir(parents=True, exist_ok=True)
-        if Path(path).is_dir():
-            self.value.set(path)
-            self.label_var.set(str(self))
-            self.update_project()
+        self.value.set(path)
+        self.label_var.set(str(self))
+        self.update_project()
 
 class LabelEntry(ProjectMixin, ttk.Frame):
     label:ttk.Label
