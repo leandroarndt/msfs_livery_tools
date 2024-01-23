@@ -1,3 +1,3 @@
 pushd %~dp0
-python.exe livery_tools.py
+.\python.exe livery_tools.py
 popd
