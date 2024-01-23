@@ -11,6 +11,10 @@
 
 * Corrected texture extraction and packaging routines when it cannot find a "texture.cfg" file in the original livery.
 
+### v1.7.2
+
+* Fixed bug which prevented app loading after the first launch depending on the system language settings.
+
 ## v1.6
 
 * Create texture UV maps.

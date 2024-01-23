@@ -92,15 +92,25 @@ class AppSettings(object):
             __class__._config_parser['GENERAL']['recent'] = str(path)
     
     def __init__(self, *args, **kwargs):
+        self.exc = None
         self.file = Path(Path.home(), '.msfs_livery_tools.cfg')
+        
         if __class__._config_parser is None:
             __class__._config_parser = configparser.ConfigParser()
-        __class__._config_parser.read(self.file, encoding='utf-8')
+        
+        try:
+            __class__._config_parser.read(self.file, encoding='utf-8')
+        except UnicodeDecodeError as raised:
+            self.file.unlink()
+            print(f'Removed wrongly encoded settings file at "{self.file}".')
+            __class__._config_parser.read(self.file, encoding='utf-8')
+            self.exc = raised
+        
         for section in ('GENERAL', 'BUILD', 'PACKAGES', 'TEXTURES'):
             if section not in __class__._config_parser.sections():
                 __class__._config_parser.add_section(section)
                 self.save()
         
     def save(self, *args, **kwargs):
-        with open(self.file, 'w') as f:
+        with open(self.file, 'w', encoding='utf-8') as f:
             __class__._config_parser.write(f, *args, **kwargs)
