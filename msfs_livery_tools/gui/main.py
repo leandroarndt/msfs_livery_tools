@@ -133,6 +133,9 @@ class MainWindow(object):
     
     def __init__(self):
         self.app_settings = AppSettings()
+        if self.app_settings.exc:
+            messagebox.showwarning('Settings error', 'Unable to load settings file. All settings have returned to default.')
+        
         self.project_modified = False
         
         # Main window
