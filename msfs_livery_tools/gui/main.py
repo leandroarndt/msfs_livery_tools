@@ -9,12 +9,13 @@ from idlelib.tooltip import Hovertip
 from pathlib import Path, PureWindowsPath
 from queue import Queue, Empty
 import webbrowser
+from .dialogues import task_window
 from msfs_livery_tools.project import Project
 from msfs_livery_tools.settings import AppSettings
 from msfs_livery_tools.package import panel_cfg
 from msfs_livery_tools.vfs import VFS
 from msfs_livery_tools.gltf.texture_map import png_map, svg_map
-from . import styles, helpers, settings, actions, about, splash, package_scanner, task_window, upgrader
+from . import styles, helpers, settings, actions, about, splash, package_scanner, upgrader
 from .tabs import flags_json
 import __main__
 
