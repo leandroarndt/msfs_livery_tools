@@ -16,5 +16,7 @@ SUBVERSION = 7
 REVISION = 1
 
 if __name__ == '__main__':
-    app = main.MainWindow()
+    # app = main.MainWindow()
+    from msfs_livery_tools.gui.dialogues import uv_map
+    app = uv_map.UVDialogue()
     app.win.mainloop()
