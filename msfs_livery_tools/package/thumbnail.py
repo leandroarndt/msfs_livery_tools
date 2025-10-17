@@ -34,7 +34,7 @@ def resize_thumbnail(path:str|Path):
     # Resizes to small
     resize_gap = gap(thumbnail, size_small)
     resized = thumbnail.resize(size_small, box=(resize_gap['xmin'], resize_gap['ymin'], resize_gap['xmax'], resize_gap['ymax']))
-    resized.save(Path(path).parent / 'thumbnail-small.jpg')
+    resized.save(Path(path).parent / 'thumbnail_small.jpg')
 
     # Resizes to big
     resize_gap = gap(thumbnail, size_big)

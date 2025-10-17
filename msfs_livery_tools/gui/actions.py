@@ -532,7 +532,7 @@ class Agent(object):
                 '*.dds.json',
                 '*.dds.flags',
                 'thumbnail.jpg',
-                'thumbnail-small.jpg'
+                'thumbnail_small.jpg'
             ):
                 for file in texture_source.glob(pattern):
                     self._copy(file, texture_dest)
