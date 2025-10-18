@@ -15,6 +15,11 @@
 
 * Fixed bug which prevented app loading after the first launch depending on the system language settings.
 
+### v1.7.3
+
+* Fixed wrong name for "thumbnail_small.jpg".
+* Run on Python 3.13.
+
 ## v1.6
 
 * Create texture UV maps.
