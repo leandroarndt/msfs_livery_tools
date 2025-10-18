@@ -294,6 +294,8 @@ class Agent(object):
             cfg.read(original, encoding='utf-8')
             fallbacks = list(cfg['fltsim'].keys())
             fallbacks.reverse()
+        except TypeError:
+            raise ConfigurationError('Could not find the original "texture.cfg"')
         except KeyError:
             cfg.add_section('fltsim')
             fallbacks = []
@@ -510,7 +512,11 @@ class Agent(object):
             texture_dest:Path = Path(airplane_path, f'texture.{suffix}')
             texture_dest.mkdir(exist_ok=True)
             if not Path(texture_source, 'texture.cfg').exists():
-                self.create_texture_cfg()
+                try:
+                    self.create_texture_cfg()
+                except ConfigurationError as e:
+                    self.error = e
+                    raise e
                 if (texture_dest / 'texture.cfg').exists():
                     (texture_dest / 'texture.cfg').unlink()
                 self._move(Path(texture_source, 'texture.cfg'), texture_dest)
@@ -526,7 +532,7 @@ class Agent(object):
                 '*.dds.json',
                 '*.dds.flags',
                 'thumbnail.jpg',
-                'thumbnail-small.jpg'
+                'thumbnail_small.jpg'
             ):
                 for file in texture_source.glob(pattern):
                     self._copy(file, texture_dest)
