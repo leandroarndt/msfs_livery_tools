@@ -62,9 +62,12 @@ if __name__ == '__main__':
     print('Copying tkinter and tcl packages and DLLs.')
     import tkinter, _tkinter # sys.executable does not work
     shutil.copytree(Path(tkinter.__file__).parent, dest / 'tkinter')
+    print(f'tkinter copyed from "{Path(tkinter.__file__).parent}"')
     shutil.copytree(Path(tkinter.__file__).parent.parent.parent / 'tcl', dest / 'tcl')
-    for file in ('_tkinter.pyd', 'tcl86t.dll', 'tk86t.dll'):
+    print(f'TCL copyed from "{Path(tkinter.__file__).parent.parent.parent / "tcl"}"')
+    for file in ('_tkinter.pyd', 'tcl86t.dll', 'tk86t.dll', 'zlib1.dll'):
         shutil.copy(Path(_tkinter.__file__).parent / file, dest / file)
+        print(f'Copied "{file}" from "{Path(_tkinter.__file__).parent / file}"')
     
     print('Copying idlelib package')
     import idlelib

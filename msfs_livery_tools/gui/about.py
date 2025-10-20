@@ -41,6 +41,9 @@ class About(object):
         self.copyright_message.pack(side=tk.TOP, fill=tk.X, expand=True)
         self.button_frame = ttk.Frame(self.win, padding=5)
         self.button_frame.pack(side=tk.TOP)
+        self.donate_button = ttk.Button(self.button_frame, text='Donate',
+            command=lambda: webbrowser.open('https://buymeacoffee.com/leandro.a'))
+        self.donate_button.pack(side=tk.LEFT)
         self.url_button = ttk.Button(self.button_frame, text='Open website', command=lambda: webbrowser.open(__main__.URL))
         self.url_button.pack(side=tk.LEFT)
         self.youtube_button = ttk.Button(self.button_frame, text="Open author's YouTube channel",
