@@ -181,6 +181,8 @@ class MainWindow(object):
         self.help_menu.add_command(label='Online manual',
             command = lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki'),
             underline=7)
+        self.help_menu.add_command(label='Donate', underline=0,
+            command=lambda: webbrowser.open('https://buymeacoffee.com/leandro.a'))
         self.help_menu.add_command(label='Contributors', underline=0,
             command=lambda: webbrowser.open('https://github.com/leandroarndt/msfs_livery_tools/wiki/Contributors'))
         self.help_menu.add_command(label='About', underline=0, command=self.about)
