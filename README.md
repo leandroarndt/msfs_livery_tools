@@ -2,7 +2,7 @@
 
 # MSFS Livery Tools
 
-MSFS Livery Tools is a Windows application to help creating liveries for existing aircrafts on Microsoft Flight Simulator 2020. It deals with all bureaucratic steps of livery creation, so that you can focus on your creative work:
+MSFS Livery Tools is a Windows application to help creating liveries for existing aircrafts on Microsoft Flight Simulator 2020/2024. It deals with all bureaucratic steps of livery creation, so that you can focus on your creative work:
 
 * Package your livery and automatically create the needed files and folders.
 * Create texture maps from glTF files (including those already built for MSFS).
@@ -24,6 +24,10 @@ MSFS Livery Tools is a Windows application to help creating liveries for existin
 Download and install latest [release](https://github.com/leandroarndt/msfs_livery_tools/releases). A shortcut will be created in your windows menu. Refer to the [wiki](https://github.com/leandroarndt/msfs_livery_tools/wiki) for help.
 
 You may also download source code and use a Python interpreter.
+
+## MSFS 2024
+
+Regarding MSFS 2024 compatibility, liveries created with this tool should be compatible with it, but the current version cannot extract KTX2 textures.
 
 ## Requirements
 
