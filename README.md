@@ -32,7 +32,7 @@ Regarding MSFS 2024 compatibility, liveries created with this tool should be com
 ## Requirements
 
 MSFS Livery Tools uses [Microsoft's texconv.exe](https://github.com/Microsoft/DirectXTex/wiki/Texconv)
-in order to extract and compress texture files.
+in order to extract and compress texture files. An external tool (there are plenty in a web search) can deal with this issue.
 
 ## Support MSFS Livery Tools
 
